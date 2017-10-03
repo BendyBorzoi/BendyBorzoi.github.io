@@ -1,0 +1,66 @@
+body{
+	color: #ccc;
+	background-color: #333;
+}
+
+.todoContainer{
+    font-size: 1.5em;
+}
+
+.details{
+    font-size: 0.7em;
+    opacity: 0.7;
+}
+
+.inputContainer{
+    display: flex;
+}
+
+.todoDisplay{
+    list-style: none;
+}
+
+.todoDisplay .singleTodo:hover .listButton{
+    opacity: 1;
+}
+
+.listButton{
+    border: none;
+    font-size: 0.5em;
+    opacity: 0;
+    float: right;
+    padding: 7px 7px 8px 8px;
+    background-color: #666;
+}
+
+.singleTodo{
+    padding-left: 7px;
+}
+
+.singleTodo:hover{
+    background-color: #444;
+    cursor: pointer;
+}
+
+.editInput{
+    position: static;
+    display: flex;
+}
+
+.editTextInput{
+	background-color: #444;
+}
+
+.form-control{
+	background-color: #444;
+	color: #ccc;
+}
+
+.addButton{
+	background-color: #444;
+	color: #ccc;
+}
+
+.modal-content{
+    background-color: #333;
+}

@@ -1,0 +1,15 @@
+<div data-ng-app="todo" ng-cloak class="container">
+    <div class="col-md-12">
+        <div class="todoContainer">
+            <div ng-controller="DetailController">
+                <div>
+                    <h3>Title: {{currentItem.title}}</h3><br>
+                    <p>Date created: {{currentItem.date}}</p>
+                    <p>Status: {{currentItem.completed}}</p>
+                    <p>Details: {{currentItem.details}}</p>
+                </div><br>
+                <button class="btn btn-default addButton" data-ng-click="goBack()">back</button>
+            </div>
+        </div>
+    </div>
+</div>
