@@ -6,6 +6,7 @@
             src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-debug.js"></script>
     <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.js'></script>
     <link rel="stylesheet" href="css/cd.css">
+    <script type="text/javascript" src="js/vm.js"></script>
 </head>
 <body>
 <div data-bind="visible: timerNotStarted">
@@ -38,6 +39,6 @@
     <div><span data-bind="text: timerString"></span></div>
     <div style="font-size: 3vw"><span data-bind="text: timerText"></span></div>
 </div>
-<script type="text/javascript" src="js/vm.js"></script>
+<script type="text/javascript">ko.applyBindings(new TimerViewModel(), document.getElementById("fullDoc"));</script>
 </body>
 </html>

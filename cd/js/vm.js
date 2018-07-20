@@ -71,5 +71,3 @@ function TimerViewModel() {
         self.timerInputs1(!self.timerInputs1());
     };
 }
-
-ko.applyBindings(new TimerViewModel(), document.getElementById("fullDoc"));
