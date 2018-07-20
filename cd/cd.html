@@ -11,7 +11,8 @@
 <div data-bind="visible: timerNotStarted">
     <button data-bind="click: switchType">switch</button>
     <form data-bind="visible: timerInputs1, submit: init1">
-        <input class="cdInput" data-bind="value: timerInputMinutes" placeholder="time in minutes" min="0"><br>
+        <input class="cdInput" type="number" data-bind="value: timerInputMinutes" placeholder="time in minutes" min="0">
+        <br>
         <input class="cdInput" data-bind="value: timerMsg" placeholder="message on completion"><br>
         <button type="submit" style="display: none">go</button>
     </form>
