@@ -1,0 +1,21 @@
+body {
+    background-color: #111;
+    color: #600;
+    font-size: 7vw;
+    font-family: 'courier new', 'sans-serif';
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.cdInput {
+    background-color: #222;
+    color: #ccc;
+    font-size: 2vw;
+}
+
+.cdDisplay {
+    text-align: center
+}
