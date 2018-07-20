@@ -39,7 +39,7 @@
                     Utilities
                 </a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <a class="dropdown-item" href="#" onclick="s('cd/cd.html')">cd</a>
+                    <a class="dropdown-item" href="cd/cd.html">cd</a>
                     <a class="dropdown-item" href="todo/todo/index.html">todo</a>
                     <!--<a class="dropdown-item" href="#">//Item 3</a>-->
                     <!--<div class="dropdown-divider"></div>-->
@@ -64,17 +64,5 @@
         </div>
     </div>
 </div>
-<script>
-    let s = function (s) {
-        let xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function() {
-            if (this.readyState === 4) {
-                document.getElementById('content').innerHTML = this.responseText;
-            }
-        };
-        xhttp.open("GET", s, true);
-        xhttp.send();
-    }
-</script>
 </body>
 </html>
