@@ -2,17 +2,23 @@
 <head>
     <title data-bind="text: timerTitle"></title>
     <link rel="shortcut icon" type="image/x-icon" href="img/clock.png"/>
-    <script type='text/javascript' src="js/moment.js"></script>
-    <script type='text/javascript' src='js/knockout-debug.js'></script>
+    <script type='text/javascript'
+            src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-debug.js"></script>
+    <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.js'></script>
     <style>
         body {
             background-color: #111;
             color: #600;
             font-size: 7vw;
             font-family: 'courier new', 'sans-serif';
+            margin: 0;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
         }
 
-        .cdInputs {
+        .cdInput {
             background-color: #222;
             color: #ccc;
             font-size: 2vw;
@@ -24,15 +30,13 @@
     </style>
 </head>
 <body>
-<div style="margin: 0; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%)">
-    <div class="cdInputs" data-bind="visible: timerInputs, event:{keyup: $root.enterKey}">
-        <input data-bind="value: timerInput" placeholder="time in minutes"><br>
-        <input data-bind="value: timerMsg" placeholder="message on completion"><br>
-    </div>
-    <div class="cdDisplay">
-        <div><span data-bind="text: timerString"></span></div>
-        <div style="font-size: 3vw"><span data-bind="text: timerText"></span></div>
-    </div>
+<div data-bind="visible: timerInputs, event:{keyup: $root.enterKey}">
+    <input class="cdInput" data-bind="value: timerInput" placeholder="time in minutes"><br>
+    <input class="cdInput" data-bind="value: timerMsg" placeholder="message on completion"><br>
+</div>
+<div class="cdDisplay">
+    <div><span data-bind="text: timerString"></span></div>
+    <div style="font-size: 3vw"><span data-bind="text: timerText"></span></div>
 </div>
 <script>
     let audio = new Audio("sounds/smw_coin.wav"),
