@@ -3,21 +3,38 @@
     <title data-bind="text: timerTitle"></title>
     <link rel="shortcut icon" type="image/x-icon" href="img/clock.png"/>
     <script type='text/javascript' src="js/moment.js"></script>
-    <script type='text/javascript' src='js/knockout-3.4.1.js'></script>
+    <script type='text/javascript' src='js/knockout-debug.js'></script>
+    <style>
+        body {
+            background-color: #111;
+            color: #600;
+            font-size: 7vw;
+            font-family: 'courier new', 'sans-serif';
+        }
+
+        .cdInputs {
+            background-color: #222;
+            color: #ccc;
+            font-size: 2vw;
+        }
+
+        .cdDisplay {
+            text-align: center
+        }
+    </style>
 </head>
-<body style="background-color: #111; color: #600; font-size: 7vw; font-family: 'courier new','sans-serif'">
+<body>
 <div style="margin: 0; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%)">
-    <div data-bind="visible: timerInputs, event:{keyup: $root.enterKey}">
-        <input style="background-color: #222; color: #ccc; font-size: 2vw" type="number"
-               data-bind="value: timerInput, hasFocus: initSelect" placeholder="time in minutes"><br>
-        <input style="background-color: #222; color: #ccc; font-size: 2vw" type="text"
-               data-bind="value: timerMsg" placeholder="message on completion"><br>
+    <div class="cdInputs" data-bind="visible: timerInputs, event:{keyup: $root.enterKey}">
+        <input data-bind="value: timerInput" placeholder="time in minutes"><br>
+        <input data-bind="value: timerMsg" placeholder="message on completion"><br>
     </div>
-    <div style="text-align: center" data-bind="text: timerString"></div>
-    <div style="text-align: center; font-size: 3vw" data-bind="text: timerText"></div>
+    <div class="cdDisplay">
+        <div><span data-bind="text: timerString"></span></div>
+        <div style="font-size: 3vw"><span data-bind="text: timerText"></span></div>
+    </div>
 </div>
 <script>
-
     let audio = new Audio("sounds/smw_coin.wav"),
         audio2 = new Audio("sounds/stuffed-and-dropped.mp3"),
         cdGoal,
@@ -27,18 +44,17 @@
 
     function TimerViewModel() {
         let self = this;
-        this.timerInputs = ko.observable(true);
-        this.initSelect = ko.observable(true);
-        this.timerInput = ko.observable();
-        this.timerMsg = ko.observable();
-        this.timerText = ko.observable();
-        this.timerTitle = ko.observable("Still Counting");
-        this.timerString = ko.observable();
-        this.enterKey = function () {
+        self.timerInputs = ko.observable(true);
+        self.timerInput = ko.observable();
+        self.timerMsg = ko.observable();
+        self.timerText = ko.observable();
+        self.timerTitle = ko.observable("Still Counting");
+        self.timerString = ko.observable();
+        self.enterKey = function (vm, event) {
             if (event.which === 13) self.init();
         };
-        this.init = function () {
-            cdGoal = moment().add(self.timerInput(), "minutes").add(-500, "milliseconds");
+        self.init = function () {
+            cdGoal = moment().add(self.timerInput(), "minutes").milliseconds(500);
             if (self.timerMsg()) {
                 msg = self.timerMsg();
                 self.timerText(msg);
@@ -48,12 +64,12 @@
             onbeforeunload = function () {
                 return "timer is active"
             };
-            audio.play();
+            audio.play().then();
             self.timerInputs(false);
             self.tick();
             interval = setInterval(self.tick, 1000);
         };
-        this.tick = function () {
+        self.tick = function () {
             timerInt = cdGoal.diff(moment());
             if (timerInt > 0) {
                 let timerString = moment().startOf("day").milliseconds(timerInt + 1000).format("HH:mm:ss");
@@ -64,8 +80,8 @@
                 self.timerTitle(msg);
                 self.timerText("finished at " + moment().format("HH:mm:ss"));
                 clearInterval(interval);
-                onbeforeunload = '';
-                audio2.play();
+                onbeforeunload = null;
+                audio2.play().then();
             }
         };
     }

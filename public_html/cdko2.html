@@ -3,24 +3,47 @@
     <title data-bind="text: timerTitle"></title>
     <link rel="shortcut icon" type="image/x-icon" href="img/clock.png"/>
     <script type='text/javascript' src='js/moment.js'></script>
-    <script type='text/javascript' src='js/knockout-3.4.1.js'></script>
+    <script type='text/javascript' src='js/knockout-debug.js'></script>
+    <style>
+        body {
+            background-color: #111;
+            color: #600;
+            font-size: 7vw;
+            font-family: 'courier new', 'sans-serif';
+            margin: 0;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .cdInputs {
+            background-color: #222;
+            color: #ccc;
+            font-size: 2vw;
+        }
+
+        .cdDisplay {
+            text-align: center;
+        }
+    </style>
 </head>
-<body style="background-color: #111; color: #600; font-size: 7vw; font-family: 'courier new','sans-serif'">
-<div style="margin: 0; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%)">
-    <div data-bind="visible: timerInputs, event:{keyup: $root.enterKey}">
-        <input style="background-color: #222; color: #ccc; font-size: 2vw" type="text"
-               data-bind="value: timerInput, hasFocus: initSelect" placeholder="hours">
-        <input style="background-color: #222; color: #ccc; font-size: 2vw" type="text"
-               data-bind="value: timerInput2" placeholder="minutes"><br>
-        <input style="background-color: #222; color: #ccc; font-size: 2vw" type="text"
-               data-bind="value: timerMsg" placeholder="message on completion"><br>
-    </div>
-    <div style="text-align: center" data-bind="text: timerString"></div>
-    <div style="text-align: center; font-size: 3vw" data-bind="text: timerText"></div>
+<body>
+<div class="cdInputs" data-bind="visible: timerInputs, event:{keyup: $root.enterKey}">
+    <input type="text"
+           data-bind="value: timerInput" placeholder="hours">
+    <input type="text"
+           data-bind="value: timerInput2" placeholder="minutes"><br>
+    <input type="text"
+           data-bind="value: timerMsg" placeholder="message on completion"><br>
+</div>
+<div class="cdDisplay">
+    <div><span data-bind="text: timerString"></span></div>
+    <div style="font-size: 3vw"><span data-bind="text: timerText"></span></div>
 </div>
 <script>
 
-    var audio = new Audio("sounds/smw_coin.wav"),
+    let audio = new Audio("sounds/smw_coin.wav"),
         audio2 = new Audio("sounds/stuffed-and-dropped-30.mp3"),
         cdGoal,
         timerInt,
@@ -29,17 +52,16 @@
         msg;
 
     function TimerViewModel() {
-        var self = this;
-        this.timerInputs = ko.observable(true);
-        this.initSelect = ko.observable(true);
-        this.timerInput = ko.observable();
-        this.timerInput2 = ko.observable();
-        this.timerMsg = ko.observable();
-        this.timerText = ko.observable();
-        this.timerTitle = ko.observable("Still Counting");
-        this.timerString = ko.observable();
-        this.enterKey = function () {
-            if (event.which == 13) self.init();
+        let self = this;
+        self.timerInputs = ko.observable(true);
+        self.timerInput = ko.observable();
+        self.timerInput2 = ko.observable();
+        self.timerMsg = ko.observable();
+        self.timerText = ko.observable();
+        self.timerTitle = ko.observable("Still Counting");
+        self.timerString = ko.observable();
+        self.enterKey = function (vm, event) {
+            if (event.which === 13) self.init();
         };
         this.init = function () {
             cdGoal = moment().startOf('day').hours(self.timerInput()).minutes(self.timerInput2());
@@ -53,11 +75,11 @@
                 return "timer is active"
             };
             self.timerInputs(false);
-            audio.play();
+            audio.play().then();
             interval2 = setInterval(self.init2, 20);
         };
         this.init2 = function () {
-            var temp = moment().milliseconds();
+            let temp = moment().milliseconds();
             if (temp % 1000 > 300 && temp % 1000 < 700) {
                 clearInterval(interval2);
                 self.tick();
@@ -67,16 +89,16 @@
         this.tick = function () {
             timerInt = cdGoal.diff(moment());
             if (timerInt > 0) {
-                var timerString = moment().startOf("day").milliseconds(timerInt + 1000).format("HH:mm:ss");
+                let timerString = moment().startOf("day").milliseconds(timerInt + 1000).format("HH:mm:ss");
                 self.timerString(timerString);
-                self.timerTitle(msg == "timer is done" ? timerString : timerString + ' ' + msg);
+                self.timerTitle(msg === "timer is done" ? timerString : timerString + ' ' + msg);
             } else {
                 self.timerString(msg);
                 self.timerTitle(msg);
                 self.timerText("finished at " + moment().format("HH:mm:ss"));
                 clearInterval(interval);
-                onbeforeunload = '';
-                audio2.play();
+                onbeforeunload = null;
+                audio2.play().then();
             }
         };
     }
