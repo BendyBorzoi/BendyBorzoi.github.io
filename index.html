@@ -16,6 +16,8 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
             integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
             crossorigin="anonymous"></script>
+    <script type="text/javascript"
+            src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-debug.js"></script>
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -27,9 +29,9 @@
 
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
-            <!--<li class="nav-item active">-->
-            <!--<a class="nav-link" href="#">//Home <span class="sr-only">(current)</span></a>-->
-            <!--</li>-->
+            <li class="nav-item active">
+                <a class="nav-link" data-bind="click: function(){vm.nav('home')}" href="#">Home <span class="sr-only">(current)</span></a>
+            </li>
             <!--<li class="nav-item">-->
             <!--<a class="nav-link" href="#">//Link</a>-->
             <!--</li>-->
@@ -39,8 +41,8 @@
                     Utilities
                 </a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <a class="dropdown-item" href="cd/cd.html">cd</a>
-                    <a class="dropdown-item" href="todo/todo/index.html">todo</a>
+                    <a class="dropdown-item" data-bind="click: function(){vm.nav('cd')}" href="#">cd</a>
+                    <a class="dropdown-item" data-bind="click: function(){vm.nav('todo')}" href="#">todo</a>
                     <!--<a class="dropdown-item" href="#">//Item 3</a>-->
                     <!--<div class="dropdown-divider"></div>-->
                     <!--<a class="dropdown-item" href="#">//Something else here</a>-->
@@ -56,13 +58,31 @@
         <!--<div>send memes</div>-->
     </div>
 </nav>
-<div id="content">
-    <div class="container">
+
+<div class="container">
+    <iframe id="i" data-bind="visible: nav() !== 'home'" style="width: 100%; height: 300px;"></iframe>
+    <div data-bind="visible: nav() === 'home'" class="container">
         <div class="col-md-12">
             <h1>Hello there.</h1>
             <p>This is a web page. It has beans in it.</p>
         </div>
     </div>
 </div>
+<script>
+    let srcMap = {
+            cd: 'cd/cd.html',
+            todo: 'todo/todo/index.html'
+        },
+        VM = function () {
+            let self = this;
+            self.nav = ko.observable('home');
+            self.doNav = ko.computed(function () {
+                if (srcMap[self.nav()])
+                    document.getElementById('i').src = srcMap[self.nav()];
+            });
+        },
+        vm = new VM();
+    ko.applyBindings(vm);
+</script>
 </body>
 </html>
