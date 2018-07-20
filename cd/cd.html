@@ -9,6 +9,7 @@
     <script type="text/javascript" src="js/vm.js"></script>
 </head>
 <body>
+<div id="nav"></div>
 <div data-bind="visible: timerNotStarted">
     <button data-bind="click: switchType">switch</button>
     <form data-bind="visible: timerInputs1, submit: init1">
@@ -40,5 +41,6 @@
     <div style="font-size: 3vw"><span data-bind="text: timerText"></span></div>
 </div>
 <script type="text/javascript">ko.applyBindings(new TimerViewModel(), document.getElementById("fullDoc"));</script>
+<script type="text/javascript" src="../nav.js"></script>
 </body>
 </html>
