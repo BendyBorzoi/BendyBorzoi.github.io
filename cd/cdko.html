@@ -8,10 +8,11 @@
     <link rel="stylesheet" href="css/cd.css">
 </head>
 <body>
-<div data-bind="visible: timerInputs, event:{keyup: $root.enterKey}">
+<form data-bind="visible: timerInputs, submit: init">
     <input class="cdInput" data-bind="value: timerInput" placeholder="time in minutes"><br>
     <input class="cdInput" data-bind="value: timerMsg" placeholder="message on completion"><br>
-</div>
+    <button type="submit" style="display: none">go</button>
+</form>
 <div class="cdDisplay">
     <div><span data-bind="text: timerString"></span></div>
     <div style="font-size: 3vw"><span data-bind="text: timerText"></span></div>
@@ -32,9 +33,6 @@
         self.timerText = ko.observable();
         self.timerTitle = ko.observable("Still Counting");
         self.timerString = ko.observable();
-        self.enterKey = function (vm, event) {
-            if (event.which === 13) self.init();
-        };
         self.init = function () {
             cdGoal = moment().add(self.timerInput(), "minutes").milliseconds(500);
             if (self.timerMsg()) {
