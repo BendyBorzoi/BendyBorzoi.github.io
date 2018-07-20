@@ -16,6 +16,11 @@ body {
     font-size: 2vw;
 }
 
+.cdInputSplit {
+    width: 50%;
+    float: left;
+}
+
 .cdDisplay {
     text-align: center
 }
