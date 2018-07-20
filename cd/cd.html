@@ -11,15 +11,15 @@
 <div data-bind="visible: timerNotStarted">
     <button data-bind="click: switchType">switch</button>
     <form data-bind="visible: timerInputs1, submit: init1">
-        <input class="cdInput" data-bind="value: timerInput" placeholder="time in minutes"><br>
+        <input class="cdInput" data-bind="value: timerInput" placeholder="time in minutes" min="0"><br>
         <input class="cdInput" data-bind="value: timerMsg" placeholder="message on completion"><br>
         <button type="submit" style="display: none">go</button>
     </form>
     <form data-bind="visible: timerInputs2, submit: init21">
         <input class="cdInput" type="number"
-               data-bind="value: timerInput" placeholder="hours">
+               data-bind="value: timerInput" placeholder="hours" min="0" max="23">
         <input class="cdInput" type="number"
-               data-bind="value: timerInput2" placeholder="minutes"><br>
+               data-bind="value: timerInput2" placeholder="minutes" min="0" max="59"><br>
         <input class="cdInput" type="text"
                data-bind="value: timerMsg" placeholder="message on completion"><br>
         <button type="submit" style="display: none">go</button>
@@ -35,6 +35,7 @@
         cdGoal,
         timerInt,
         interval,
+        interval2,
         msg;
 
     function TimerViewModel() {
