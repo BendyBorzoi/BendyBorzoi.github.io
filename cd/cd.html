@@ -11,15 +11,15 @@
 <div data-bind="visible: timerNotStarted">
     <button data-bind="click: switchType">switch</button>
     <form data-bind="visible: timerInputs1, submit: init1">
-        <input class="cdInput" data-bind="value: timerInput" placeholder="time in minutes" min="0"><br>
+        <input class="cdInput" data-bind="value: timerInputMinutes" placeholder="time in minutes" min="0"><br>
         <input class="cdInput" data-bind="value: timerMsg" placeholder="message on completion"><br>
         <button type="submit" style="display: none">go</button>
     </form>
     <form data-bind="visible: timerInputs2, submit: init21">
         <input class="cdInput" type="number"
-               data-bind="value: timerInput" placeholder="hours" min="0" max="23">
+               data-bind="value: timerInputHour" placeholder="hours" min="0" max="23">
         <input class="cdInput" type="number"
-               data-bind="value: timerInput2" placeholder="minutes" min="0" max="59"><br>
+               data-bind="value: timerInputMinute" placeholder="minutes" min="0" max="59"><br>
         <input class="cdInput" type="text"
                data-bind="value: timerMsg" placeholder="message on completion"><br>
         <button type="submit" style="display: none">go</button>
@@ -45,8 +45,9 @@
             return !self.timerInputs1();
         });
         self.timerNotStarted = ko.observable(true);
-        self.timerInput = ko.observable();
-        self.timerInput2 = ko.observable();
+        self.timerInputMinutes = ko.observable();
+        self.timerInputHour = ko.observable();
+        self.timerInputMinute = ko.observable();
         self.timerMsg = ko.observable();
         self.timerText = ko.observable();
         self.timerTitle = ko.observable("Still Counting");
@@ -65,13 +66,13 @@
             audio.play().then();
         };
         self.init1 = function () {
-            cdGoal = moment().add(self.timerInput(), "minutes").milliseconds(500);
+            cdGoal = moment().add(self.timerInputMinutes(), "minutes").milliseconds(500);
             self.init();
             self.tick();
             interval = setInterval(self.tick, 1000);
         };
         self.init21 = function () {
-            cdGoal = moment().startOf('day').hours(self.timerInput()).minutes(self.timerInput2());
+            cdGoal = moment().startOf('day').hours(self.timerInputHour()).minutes(self.timerInputMinute());
             self.init();
             interval2 = setInterval(self.init22, 20);
         };
