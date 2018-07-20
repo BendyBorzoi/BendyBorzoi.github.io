@@ -8,11 +8,23 @@
     <link rel="stylesheet" href="css/cd.css">
 </head>
 <body>
-<form data-bind="visible: timerInputs, submit: init">
-    <input class="cdInput" data-bind="value: timerInput" placeholder="time in minutes"><br>
-    <input class="cdInput" data-bind="value: timerMsg" placeholder="message on completion"><br>
-    <button type="submit" style="display: none">go</button>
-</form>
+<div data-bind="visible: timerNotStarted">
+    <button data-bind="click: switchType">switch</button>
+    <form data-bind="visible: timerInputs1, submit: init1">
+        <input class="cdInput" data-bind="value: timerInput" placeholder="time in minutes"><br>
+        <input class="cdInput" data-bind="value: timerMsg" placeholder="message on completion"><br>
+        <button type="submit" style="display: none">go</button>
+    </form>
+    <form data-bind="visible: timerInputs2, submit: init21">
+        <input class="cdInput" type="number"
+               data-bind="value: timerInput" placeholder="hours">
+        <input class="cdInput" type="number"
+               data-bind="value: timerInput2" placeholder="minutes"><br>
+        <input class="cdInput" type="text"
+               data-bind="value: timerMsg" placeholder="message on completion"><br>
+        <button type="submit" style="display: none">go</button>
+    </form>
+</div>
 <div class="cdDisplay">
     <div><span data-bind="text: timerString"></span></div>
     <div style="font-size: 3vw"><span data-bind="text: timerText"></span></div>
@@ -27,14 +39,18 @@
 
     function TimerViewModel() {
         let self = this;
-        self.timerInputs = ko.observable(true);
+        self.timerInputs1 = ko.observable(true);
+        self.timerInputs2 = ko.computed(function () {
+            return !self.timerInputs1();
+        });
+        self.timerNotStarted = ko.observable(true);
         self.timerInput = ko.observable();
+        self.timerInput2 = ko.observable();
         self.timerMsg = ko.observable();
         self.timerText = ko.observable();
         self.timerTitle = ko.observable("Still Counting");
         self.timerString = ko.observable();
         self.init = function () {
-            cdGoal = moment().add(self.timerInput(), "minutes").milliseconds(500);
             if (self.timerMsg()) {
                 msg = self.timerMsg();
                 self.timerText(msg);
@@ -44,10 +60,27 @@
             onbeforeunload = function () {
                 return "timer is active"
             };
+            self.timerNotStarted(false);
             audio.play().then();
-            self.timerInputs(false);
+        };
+        self.init1 = function () {
+            cdGoal = moment().add(self.timerInput(), "minutes").milliseconds(500);
+            self.init();
             self.tick();
             interval = setInterval(self.tick, 1000);
+        };
+        self.init21 = function () {
+            cdGoal = moment().startOf('day').hours(self.timerInput()).minutes(self.timerInput2());
+            self.init();
+            interval2 = setInterval(self.init22, 20);
+        };
+        self.init22 = function () {
+            let temp = moment().milliseconds();
+            if (temp % 1000 > 300 && temp % 1000 < 700) {
+                clearInterval(interval2);
+                self.tick();
+                interval = setInterval(self.tick, 1000);
+            }
         };
         self.tick = function () {
             timerInt = cdGoal.diff(moment());
@@ -63,6 +96,9 @@
                 onbeforeunload = null;
                 audio2.play().then();
             }
+        };
+        self.switchType = function () {
+            self.timerInputs1(!self.timerInputs1());
         };
     }
 
