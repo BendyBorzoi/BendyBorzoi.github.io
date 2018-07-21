@@ -27,6 +27,9 @@ function TimerViewModel() {
         } else {
             msg = "timer is done"
         }
+        onbeforeunload = function () {
+            return "A timer is still running."
+        };
         self.timerNotStarted(false);
         audio.play().then();
     };
@@ -60,6 +63,7 @@ function TimerViewModel() {
             self.timerTitle(msg);
             self.timerText("finished at " + moment().format("HH:mm:ss"));
             clearInterval(interval);
+            onbeforeunload = null;
             audio2.play().then();
         }
     };

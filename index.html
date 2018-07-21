@@ -42,8 +42,14 @@
                     Utilities
                 </a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <a class="dropdown-item" data-bind="click: function(){vm.nav('cd')}" href="#">cd</a>
-                    <a class="dropdown-item" data-bind="click: function(){vm.nav('todo')}" href="#">todo</a>
+                    <a class="dropdown-item" data-bind="click: function(){vm.nav('cd')}" href="#">
+                        cd
+                        <button class="btn" data-bind="click: function(data, event){vm.navTo('cd', event)}" style="float: right; transform: scale(0.7,0.7) translate(34px,-9px)">></button>
+                    </a>
+                    <a class="dropdown-item" data-bind="click: function(){vm.nav('todo')}" href="#">
+                        todo
+                        <button class="btn" data-bind="click: function(data, event){vm.navTo('todo', event)}" style="float: right; transform: scale(0.7,0.7) translate(34px,-9px)">></button>
+                    </a>
                     <!--<a class="dropdown-item" href="#">//Item 3</a>-->
                     <!--<div class="dropdown-divider"></div>-->
                     <!--<a class="dropdown-item" href="#">//Something else here</a>-->
@@ -64,15 +70,15 @@
     <iframe id="i" onload="this.style.opacity=1;typeof vm !== 'undefined' ? vm.loading(false) : null;"
             style="border-width: 0; width: 100%; height: 100%;"></iframe>
 </div>
-<div class="container">
-    <div data-bind="visible: nav() === 'home'" class="container">
-        <div class="col-md-12">
-            <h1>Lorem Ipsum</h1>
-            <p>Lorem Ispum is a choke artist. It chokes! I will write some great placeholder text – and nobody writes
-                better placeholder text than me, believe me – and I’ll write it very inexpensively. I will write some
-                great, great text on your website’s Southern border, and I will make Google pay for that text. Mark my
-                words.
-            </p>
+<div data-bind="visible: nav() === 'home'" class="container">
+    <div class="col-md-12">
+        <h1>Lorem Ipsum</h1>
+        <div id="lorem"><p>Lorem Ispum is a choke artist. It chokes! I will write some great placeholder text – and
+            nobody writes
+            better placeholder text than me, believe me – and I’ll write it very inexpensively. I will write some
+            great, great text on your website’s Southern border, and I will make Google pay for that text. Mark my
+            words.
+        </p>
             <p>I think the only card she has is the Lorem card. My text is long and beautiful, as, it has been well
                 documented, are various other parts of my website.
             </p>
@@ -107,10 +113,16 @@
             self.doNav = ko.computed(function () {
                 if (srcMap[self.nav()]) {
                     self.loading(true);
-                    document.getElementById('i').style.opacity = '0';
-                    document.getElementById('i').src = srcMap[self.nav()];
+                    let iFrame = document.getElementById('i');
+                    iFrame.style.opacity = '0';
+                    iFrame.contentWindow.onbeforeunload = null;
+                    iFrame.src = srcMap[self.nav()];
                 }
             });
+            self.navTo = function (str, e) {
+                e.stopPropagation();
+                window.location = srcMap[str];
+            }
         },
         vm = new VM();
     ko.applyBindings(vm);
