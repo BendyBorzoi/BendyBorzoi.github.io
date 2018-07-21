@@ -100,6 +100,7 @@
         </div>
     </div>
 </div>
+<a id="dummyLink" style="display: none" target="_blank"></a>
 <script>
     let srcMap = {
             cd: 'cd/cd.html',
@@ -121,7 +122,9 @@
             });
             self.navTo = function (str, e) {
                 e.stopPropagation();
-                window.location = srcMap[str];
+                let l = document.getElementById('dummyLink');
+                l.href = srcMap[str];
+                l.click();
             }
         },
         vm = new VM();
