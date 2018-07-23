@@ -34,7 +34,7 @@ function TimerViewModel() {
         audio.play().then();
     };
     self.init1 = function () {
-        cdGoal = moment().add(self.timerInputMinutes(), "minutes").milliseconds(500);
+        cdGoal = moment().milliseconds(300).add(self.timerInputMinutes(), "minutes");
         self.init();
         self.tick();
         interval = setInterval(self.tick, 1000);

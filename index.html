@@ -31,7 +31,9 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
             <li class="nav-item active">
-                <a class="nav-link" data-bind="click: function(){vm.nav('home')}" href="#">Home <span class="sr-only">(current)</span></a>
+                <a class="nav-link" data-bind="click: function(){vm.nav('home')}" href="#">
+                    Home <span class="sr-only">(current)</span>
+                </a>
             </li>
             <!--<li class="nav-item">-->
             <!--<a class="nav-link" href="#">//Link</a>-->
@@ -44,11 +46,15 @@
                 <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                     <a class="dropdown-item" data-bind="click: function(){vm.nav('cd')}" href="#">
                         cd
-                        <button class="btn" data-bind="click: function(data, event){vm.navTo('cd', event)}" style="float: right; transform: scale(0.7,0.7) translate(34px,-9px)">></button>
+                        <button class="btn" data-bind="click: function(data, event){vm.navTo('cd', event)}"
+                                style="float: right; transform: scale(0.7,0.7) translate(34px,-9px)">>
+                        </button>
                     </a>
                     <a class="dropdown-item" data-bind="click: function(){vm.nav('todo')}" href="#">
                         todo
-                        <button class="btn" data-bind="click: function(data, event){vm.navTo('todo', event)}" style="float: right; transform: scale(0.7,0.7) translate(34px,-9px)">></button>
+                        <button class="btn" data-bind="click: function(data, event){vm.navTo('todo', event)}"
+                                style="float: right; transform: scale(0.7,0.7) translate(34px,-9px)">>
+                        </button>
                     </a>
                     <!--<a class="dropdown-item" href="#">//Item 3</a>-->
                     <!--<div class="dropdown-divider"></div>-->
@@ -100,13 +106,20 @@
         </div>
     </div>
 </div>
-<a id="dummyLink" style="display: none" target="_blank"></a>
+<a id="hiddenLink" style="display: none" target="_blank"></a>
+<div style="position: absolute; bottom: 0; right: 0;" id="chromeWarning">This page was made for Chrome is probably not
+    working properly in your browser
+</div>
 <script>
+    if(!!window.chrome && !!window.chrome.webstore) {
+        document.getElementById('chromeWarning').style.display = 'none';
+    }
     let srcMap = {
             cd: 'cd/cd.html',
             todo: 'todo/todo/index.html',
             about: 'about.html'
         },
+        hiddenLink = document.getElementById('hiddenLink'),
         VM = function () {
             let self = this;
             self.nav = ko.observable('home');
@@ -122,9 +135,8 @@
             });
             self.navTo = function (str, e) {
                 e.stopPropagation();
-                let l = document.getElementById('dummyLink');
-                l.href = srcMap[str];
-                l.click();
+                hiddenLink.href = srcMap[str];
+                hiddenLink.click();
             }
         },
         vm = new VM();
