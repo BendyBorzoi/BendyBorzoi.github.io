@@ -45,34 +45,7 @@ todo.controller("Controller", function Controller($scope, $uibModal, $location) 
     $scope.tempTitle = {};
     $scope.u = {};
 
-    firebase.auth().onAuthStateChanged(function (user) {
-        if (user && user.uid) {
-            $scope.u = user.uid;
-            window.db = firebase.database().ref("/" + user.uid);
-            window.db.on('value', function (data) {
-                data = data.val();
-                var newItems = [];
-                for (var key in data) {
-                    if (!data.hasOwnProperty(key)) continue;
-                    data[key].id = key;
-                    /*var index = containsObject(data[key], $scope.items);
-                    console.log(index);*/
-                    /*if (index) {
-                        $scope.items[index - 1] = data[key];
-                    } else {
-                        $scope.items.push(data[key]);
-                    }*/
-                    newItems.push(data[key]);
-                }
-                $scope.items = newItems;
-                if (!$scope.$$phase) {
-                    $scope.$apply();
-                }
-            });
-        } else {
-            $scope.u = 0;
-        }
-    });
+    initAuthedDB($scope);
 
     $scope.showEditForm = function (id, $event) {
         $event.stopPropagation();
@@ -190,8 +163,25 @@ todo.controller("Controller", function Controller($scope, $uibModal, $location) 
 
 todo.controller("DetailController", function DetailController($scope, $routeParams, $location) {
     $scope.currentItem = {};
+    initAuthedDB($scope, function () {
+        window.db.child($routeParams.id).on('value', function (doc) {
+            doc = doc.val();
+            $scope.currentItem.title = doc.title;
+            $scope.currentItem.date = doc._id;
+            $scope.currentItem.completed = doc.completed ? "completed" : "not completed";
+            $scope.currentItem.details = doc.details;
+            $scope.$apply();
+        });
+    });
+
+    $scope.goBack = function () {
+        $location.path('/');
+    };
+});
+
+function initAuthedDB($scope, callback) {
     firebase.auth().onAuthStateChanged(function (user) {
-        if (user.uid) {
+        if (user && user.uid) {
             $scope.u = user.uid;
             window.db = firebase.database().ref("/" + user.uid);
             window.db.on('value', function (data) {
@@ -201,12 +191,12 @@ todo.controller("DetailController", function DetailController($scope, $routePara
                     if (!data.hasOwnProperty(key)) continue;
                     data[key].id = key;
                     /*var index = containsObject(data[key], $scope.items);
-                    console.log(index);*/
+                console.log(index);*/
                     /*if (index) {
-                        $scope.items[index - 1] = data[key];
-                    } else {
-                        $scope.items.push(data[key]);
-                    }*/
+                    $scope.items[index - 1] = data[key];
+                } else {
+                    $scope.items.push(data[key]);
+                }*/
                     newItems.push(data[key]);
                 }
                 $scope.items = newItems;
@@ -214,18 +204,12 @@ todo.controller("DetailController", function DetailController($scope, $routePara
                     $scope.$apply();
                 }
             });
-            window.db.child($routeParams.id).once('value').then(function (doc) {
-                doc = doc.val();
-                $scope.currentItem.title = doc.title;
-                $scope.currentItem.date = doc._id;
-                $scope.currentItem.completed = doc.completed ? "completed" : "not completed";
-                $scope.currentItem.details = doc.details;
+            callback();
+        } else {
+            $scope.u = 0;
+            if (!$scope.$$phase) {
                 $scope.$apply();
-            });
+            }
         }
     });
-
-    $scope.goBack = function () {
-        $location.path('/');
-    };
-});
+}
