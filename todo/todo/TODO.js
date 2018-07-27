@@ -172,7 +172,7 @@ todo.controller("Controller", function Controller($scope, $uibModal, $location) 
         firebase.auth().signOut();
     };
 
-    $scope.displayLogin = true;
+    $scope.displayLogin = false;
 });
 
 todo.controller("DetailController", function DetailController($scope, $routeParams, $location) {
