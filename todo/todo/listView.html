@@ -2,11 +2,21 @@
     <div class="col-md-12">
         <div class="todoContainer">
             <div ng-controller="Controller">
-                <form ng-submit="login()" ng-show="!u">Login
-                    <input ng-model="usernameInput" title="usernameInput">
-                    <input ng-model="passwordInput" title="passwordInput" type="password">
-                    <input type="submit">
-                </form>
+                <div ng-show="!u" class="loginWindow">
+                    <form ng-submit="login()" ng-show="displayLogin">Login
+                        <input ng-model="usernameInput" title="usernameInput" class="form-control">
+                        <input ng-model="passwordInput" title="passwordInput" type="password" class="form-control">
+                        <input type="submit" class="btn btn-default addButton">
+                    </form>
+                    <form ng-submit="signUp()" ng-show="!displayLogin">Register
+                        <input ng-model="newUsernameInput" title="newUsernameInput" class="form-control">
+                        <input ng-model="newPasswordInput" title="newPasswordInput" type="password"
+                               class="form-control">
+                        <input type="submit" class="btn btn-default addButton">
+                    </form>
+                    <button ng-click="displayLogin = !displayLogin" class="btn btn-default addButton"
+                            ng-bind="displayLogin ? 'register instead' : 'login instead'"></button>
+                </div>
                 <div ng-show="u">
                     <div class="inputContainer">
                         <button class="btn btn-default addButton" data-ng-click="sendNewTodo()">+</button>
@@ -37,7 +47,7 @@
                         <button data-ng-click="finalizeEdit()" class="btn btn-default addButton">edit</button>
                         <button data-ng-click="cancelEdit()" class="btn btn-default addButton">cancel</button>
                     </div>
-                    <button ng-click="logout()">logout</button>
+                    <button class="btn btn-default addButton logout" ng-click="logout()">logout</button>
                 </div>
             </div>
         </div>

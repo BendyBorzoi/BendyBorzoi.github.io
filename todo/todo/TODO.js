@@ -153,12 +153,26 @@ todo.controller("Controller", function Controller($scope, $uibModal, $location) 
     $scope.login = function () {
         firebase.auth().signInWithEmailAndPassword($scope.usernameInput, $scope.passwordInput).catch(function (error) {
             alert('unable to auth');
+        }).then(function () {
+            $scope.usernameInput = '';
+            $scope.passwordInput = '';
+        });
+    };
+
+    $scope.signUp = function () {
+        firebase.auth().createUserWithEmailAndPassword($scope.newUsernameInput, $scope.newPasswordInput).catch(function (error) {
+            alert('unable to auth');
+        }).then(function () {
+            $scope.newUsernameInput = '';
+            $scope.newPasswordInput = '';
         });
     };
 
     $scope.logout = function () {
         firebase.auth().signOut();
-    }
+    };
+
+    $scope.displayLogin = true;
 });
 
 todo.controller("DetailController", function DetailController($scope, $routeParams, $location) {
@@ -170,7 +184,9 @@ todo.controller("DetailController", function DetailController($scope, $routePara
             $scope.currentItem.date = doc._id;
             $scope.currentItem.completed = doc.completed ? "completed" : "not completed";
             $scope.currentItem.details = doc.details;
-            $scope.$apply();
+            if (!$scope.$$phase) {
+                $scope.$apply();
+            }
         });
     });
 
