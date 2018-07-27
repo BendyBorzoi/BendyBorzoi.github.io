@@ -3,6 +3,17 @@
  */
 var todo = angular.module("todo", ['ngAnimate', 'ngSanitize', 'ngRoute', 'ui.bootstrap']);
 
+// Initialize Firebase
+var config = {
+    apiKey: "AIzaSyBq03qM_RMDydH38eW42cL_KfYFQE8bNOo",
+    authDomain: "simple-todo-app-ng.firebaseapp.com",
+    databaseURL: "https://simple-todo-app-ng.firebaseio.com",
+    projectId: "simple-todo-app-ng",
+    storageBucket: "",
+    messagingSenderId: "1026888360899"
+};
+firebase.initializeApp(config);
+
 todo.config(function ($routeProvider) {
     $routeProvider
         .when("/", {
@@ -19,8 +30,22 @@ todo.controller("Controller", function Controller($scope, $uibModal, $location) 
     $scope.editing = "hidden";
     $scope.editingId = {};
     $scope.tempTitle = {};
+    $scope.u = {};
+    $scope.db = {};
 
-    var db = new PouchDB('todoDB');
+    firebase.auth().onAuthStateChanged(function (user) {
+        $scope.u = user;
+        $scope.db = firebase.database().ref("/"/*firebase.auth().currentUser.uid*/);
+        $scope.db.on('value', function (data) {
+            data = data.val();
+            $scope.items = [];
+            for (var key in data) {
+                if (!data.hasOwnProperty(key)) continue;
+                $scope.items.push(data[key]);
+            }
+            $scope.$apply();
+        });
+    });
 
     $scope.showEditForm = function (id, $event) {
         $event.stopPropagation();
@@ -28,12 +53,13 @@ todo.controller("Controller", function Controller($scope, $uibModal, $location) 
             templateUrl: 'editModal.html',
             backdrop: "static",
             controller: function ($scope, id) {
-                var db = new PouchDB('todoDB');
                 $scope.params = {};
                 window.onbeforeunload = function () {
                     return "An edit is still in progress! Do you really want to leave?";
                 };
-                db.get(id).then(function (doc) {
+
+                $scope.db.child(id).once('value').then(function (doc) {
+                    doc = doc.val();
                     $scope.tempTitle = doc.title;
                     $scope.tempDetails = doc.details;
                     $scope.params.editText = doc.title;
@@ -41,24 +67,24 @@ todo.controller("Controller", function Controller($scope, $uibModal, $location) 
                 });
 
                 $scope.cancelEdit = function () {
-                    window.onbeforeunload = "";
-                    db.get(id).then(function (doc) {
+                    window.onbeforeunload = null;
+                    $scope.db.child(id).once(value).then(function (doc) {
+                        doc = doc.val();
                         doc.title = $scope.tempTitle;
                         doc.details = $scope.tempDetails;
-                        db.put(doc);
-                        refreshListView();
+                        db.child(id).set(doc);
                         m.close();
                     });
                 };
 
                 $scope.finalizeEdit = function () {
                     if ($scope.params.editText) {
-                        window.onbeforeunload = "";
-                        db.get(id).then(function (doc) {
+                        window.onbeforeunload = null;
+                        $scope.db.child(id).once('value').then(function (doc) {
+                            doc = doc.val();
                             doc.title = $scope.params.editText;
                             doc.details = $scope.params.editDetailText;
-                            db.put(doc);
-                            refreshListView();
+                            db.child(id).set(doc);
                             m.close();
                         });
                     }
@@ -79,54 +105,40 @@ todo.controller("Controller", function Controller($scope, $uibModal, $location) 
         });
     };
 
-    function refreshListView() {
-
-        $scope.items = [];
-
-        db.allDocs({include_docs: true, descending: true}, function (err, doc) {
-            doc.rows.forEach(function (row) {
-                $scope.items.push({
-                    id: row.id,
-                    text: row.doc.title,
-                    checked: row.doc.completed,
-                    details: row.doc.details
-                });
-            });
-            $scope.$apply();
-        });
-    }
-
-    refreshListView();
-
     $scope.sendNewTodo = function () {
         if ($scope.params.text) {
-            var todo = {
-                _id: new Date().toISOString(),
+            var todo = {};
+            var id = $scope.db.push().key;
+            todo[$scope.db.push().key] = {
+                _id: (new Date().toISOString()),
                 title: $scope.params.text,
                 completed: false,
-                details: $scope.params.detailText
+                details: $scope.params.detailText || "",
+                id: $scope.db.push().key
             };
-            db.put(todo);
+            $scope.db.update(todo);
             $scope.params.text = "";
             $scope.params.detailText = "";
-            refreshListView();
         }
     };
 
     $scope.sendCheckEdit = function (id) {
-        db.get(id).then(function (doc) {
-            doc.completed = !doc.completed;
-            db.put(doc);
-            refreshListView();
+        $scope.db.once('value').then(function (doc) {
+            doc = doc.val();
+            console.log(doc[id]);
+            console.log(id);
+            console.log(doc);
+            doc[id].completed = !doc[id].completed;
+            $scope.db.set(doc);
         });
     };
 
     $scope.removeTodo = function (id, $event) {
         $event.stopPropagation();
-        db.get(id).then(function (doc) {
+        $scope.db.child(id).once('value').then(function (doc) {
+            doc = doc.val();
             if ($scope.editingId === id) return;
-            db.remove(doc);
-            refreshListView();
+            $scope.db.child(id).remove();
         });
     };
 
@@ -143,11 +155,12 @@ todo.controller("Controller", function Controller($scope, $uibModal, $location) 
 });
 
 todo.controller("DetailController", function DetailController($scope, $routeParams, $location) {
-    var db = new PouchDB('todoDB');
     $scope.currentItem = {};
-    db.get($routeParams.id).then(function (doc) {
+    $scope.db = firebase.database().ref("/");
+    $scope.db.child($routeParams.id).once('value').then(function (doc) {
+        doc = doc.val();
         $scope.currentItem.title = doc.title;
-        $scope.currentItem.date = doc._id;
+        $scope.currentItem.date = doc.title; //TODO
         $scope.currentItem.completed = doc.completed ? "completed" : "not completed";
         $scope.currentItem.details = doc.details;
         $scope.$apply();

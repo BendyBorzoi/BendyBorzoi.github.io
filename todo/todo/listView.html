@@ -12,8 +12,8 @@
 
                 <ul class="todoDisplay">
                     <li class="singleTodo" ng-repeat="item in items" data-ng-click="sendCheckEdit(item.id)">
-                        <input title="" type="checkbox" data-ng-checked="item.checked">
-                        {{item.text}}
+                        <input title="" type="checkbox" data-ng-checked="item.completed">
+                        {{item.title}}
                         <span class="details">{{item.details}}</span>
                         <button class="listButton btn-default" data-ng-click="removeTodo(item.id,$event)">✕</button>
                         <button class="listButton btn-default" data-ng-click="showEditForm(item.id,$event)">edit</button>
