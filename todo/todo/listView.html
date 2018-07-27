@@ -2,31 +2,42 @@
     <div class="col-md-12">
         <div class="todoContainer">
             <div ng-controller="Controller">
-                <div class="inputContainer">
-                    <button class="btn btn-default addButton" data-ng-click="sendNewTodo()">+</button>
-                    <input class="form-control" ng-model="params.text" placeholder="Title"
-                           data-ng-keypress="keyPressed($event)">
-                    <input class="form-control" ng-model="params.detailText" placeholder="Details (optional)"
-                           data-ng-keypress="keyPressed($event)">
-                </div>
+                <form ng-submit="login()" ng-show="!u">Login
+                    <input ng-model="usernameInput" title="usernameInput">
+                    <input ng-model="passwordInput" title="passwordInput" type="password">
+                    <input type="submit">
+                </form>
+                <div ng-show="u">
+                    <div class="inputContainer">
+                        <button class="btn btn-default addButton" data-ng-click="sendNewTodo()">+</button>
+                        <input class="form-control" ng-model="params.text" placeholder="Title"
+                               data-ng-keypress="keyPressed($event)">
+                        <input class="form-control" ng-model="params.detailText" placeholder="Details (optional)"
+                               data-ng-keypress="keyPressed($event)">
+                    </div>
 
-                <ul class="todoDisplay">
-                    <li class="singleTodo" ng-repeat="item in items" data-ng-click="sendCheckEdit(item.id)">
-                        <input title="" type="checkbox" data-ng-checked="item.completed">
-                        {{item.title}}
-                        <span class="details">{{item.details}}</span>
-                        <button class="listButton btn-default" data-ng-click="removeTodo(item.id,$event)">✕</button>
-                        <button class="listButton btn-default" data-ng-click="showEditForm(item.id,$event)">edit</button>
-                        <button class="listButton btn-default" data-ng-click="goToDetail(item.id,$event)">details</button>
-                    </li>
-                </ul>
-                <div class="editInput" ng-class="editing">
-                    <input class="form-control editTextInput" ng-model="params.editText" placeholder="Title"
-                           data-ng-keypress="keyPressed($event)" type="text">
-                    <input class="form-control editDetailTextInput" ng-model="params.editDetailText" placeholder="Details (optional)"
-                           data-ng-keypress="keyPressed($event)" type="text">
-                    <button data-ng-click="finalizeEdit()" class="btn btn-default addButton">edit</button>
-                    <button data-ng-click="cancelEdit()" class="btn btn-default addButton">cancel</button>
+                    <ul class="todoDisplay">
+                        <li class="singleTodo" ng-repeat="item in items" data-ng-click="sendCheckEdit(item.id)">
+                            <input title="" type="checkbox" data-ng-checked="item.completed">
+                            {{item.title}}
+                            <span class="details">{{item.details}}</span>
+                            <button class="listButton btn-default" data-ng-click="removeTodo(item.id,$event)">✕</button>
+                            <button class="listButton btn-default" data-ng-click="showEditForm(item.id,$event)">edit
+                            </button>
+                            <button class="listButton btn-default" data-ng-click="goToDetail(item.id,$event)">details
+                            </button>
+                        </li>
+                    </ul>
+                    <div class="editInput" ng-class="editing">
+                        <input class="form-control editTextInput" ng-model="params.editText" placeholder="Title"
+                               data-ng-keypress="keyPressed($event)" type="text">
+                        <input class="form-control editDetailTextInput" ng-model="params.editDetailText"
+                               placeholder="Details (optional)"
+                               data-ng-keypress="keyPressed($event)" type="text">
+                        <button data-ng-click="finalizeEdit()" class="btn btn-default addButton">edit</button>
+                        <button data-ng-click="cancelEdit()" class="btn btn-default addButton">cancel</button>
+                    </div>
+                    <button ng-click="logout()">logout</button>
                 </div>
             </div>
         </div>

@@ -24,6 +24,19 @@ todo.config(function ($routeProvider) {
         })
 });
 
+window.db = {};
+
+function containsObject(obj, list) {
+    var i;
+    for (i = 0; i < list.length; i++) {
+        if (list[i].id === obj.id) {
+            return i + 1;
+        }
+    }
+
+    return 0;
+}
+
 todo.controller("Controller", function Controller($scope, $uibModal, $location) {
     $scope.params = {};
     $scope.items = [];
@@ -31,20 +44,34 @@ todo.controller("Controller", function Controller($scope, $uibModal, $location) 
     $scope.editingId = {};
     $scope.tempTitle = {};
     $scope.u = {};
-    $scope.db = {};
 
     firebase.auth().onAuthStateChanged(function (user) {
-        $scope.u = user;
-        $scope.db = firebase.database().ref("/"/*firebase.auth().currentUser.uid*/);
-        $scope.db.on('value', function (data) {
-            data = data.val();
-            $scope.items = [];
-            for (var key in data) {
-                if (!data.hasOwnProperty(key)) continue;
-                $scope.items.push(data[key]);
-            }
-            $scope.$apply();
-        });
+        if (user && user.uid) {
+            $scope.u = user.uid;
+            window.db = firebase.database().ref("/" + user.uid);
+            window.db.on('value', function (data) {
+                data = data.val();
+                var newItems = [];
+                for (var key in data) {
+                    if (!data.hasOwnProperty(key)) continue;
+                    data[key].id = key;
+                    /*var index = containsObject(data[key], $scope.items);
+                    console.log(index);*/
+                    /*if (index) {
+                        $scope.items[index - 1] = data[key];
+                    } else {
+                        $scope.items.push(data[key]);
+                    }*/
+                    newItems.push(data[key]);
+                }
+                $scope.items = newItems;
+                if (!$scope.$$phase) {
+                    $scope.$apply();
+                }
+            });
+        } else {
+            $scope.u = 0;
+        }
     });
 
     $scope.showEditForm = function (id, $event) {
@@ -58,7 +85,7 @@ todo.controller("Controller", function Controller($scope, $uibModal, $location) 
                     return "An edit is still in progress! Do you really want to leave?";
                 };
 
-                $scope.db.child(id).once('value').then(function (doc) {
+                window.db.child(id).once('value').then(function (doc) {
                     doc = doc.val();
                     $scope.tempTitle = doc.title;
                     $scope.tempDetails = doc.details;
@@ -68,23 +95,23 @@ todo.controller("Controller", function Controller($scope, $uibModal, $location) 
 
                 $scope.cancelEdit = function () {
                     window.onbeforeunload = null;
-                    $scope.db.child(id).once(value).then(function (doc) {
+                    /*db.child(id).once('value').then(function (doc) {
                         doc = doc.val();
                         doc.title = $scope.tempTitle;
                         doc.details = $scope.tempDetails;
                         db.child(id).set(doc);
-                        m.close();
-                    });
+                    });*/
+                    m.close();
                 };
 
                 $scope.finalizeEdit = function () {
                     if ($scope.params.editText) {
                         window.onbeforeunload = null;
-                        $scope.db.child(id).once('value').then(function (doc) {
+                        window.db.child(id).once('value').then(function (doc) {
                             doc = doc.val();
                             doc.title = $scope.params.editText;
                             doc.details = $scope.params.editDetailText;
-                            db.child(id).set(doc);
+                            window.db.child(id).set(doc);
                             m.close();
                         });
                     }
@@ -108,37 +135,34 @@ todo.controller("Controller", function Controller($scope, $uibModal, $location) 
     $scope.sendNewTodo = function () {
         if ($scope.params.text) {
             var todo = {};
-            var id = $scope.db.push().key;
-            todo[$scope.db.push().key] = {
+            var id = window.db.push().key;
+            todo[window.db.push().key] = {
                 _id: (new Date().toISOString()),
                 title: $scope.params.text,
                 completed: false,
                 details: $scope.params.detailText || "",
-                id: $scope.db.push().key
+                id: db.push().key
             };
-            $scope.db.update(todo);
+            window.db.update(todo);
             $scope.params.text = "";
             $scope.params.detailText = "";
         }
     };
 
     $scope.sendCheckEdit = function (id) {
-        $scope.db.once('value').then(function (doc) {
+        window.db.child(id).once('value').then(function (doc) {
             doc = doc.val();
-            console.log(doc[id]);
-            console.log(id);
-            console.log(doc);
-            doc[id].completed = !doc[id].completed;
-            $scope.db.set(doc);
+            doc.completed = !doc.completed;
+            window.db.child(id).set(doc);
         });
     };
 
     $scope.removeTodo = function (id, $event) {
         $event.stopPropagation();
-        $scope.db.child(id).once('value').then(function (doc) {
+        window.db.child(id).once('value').then(function (doc) {
             doc = doc.val();
             if ($scope.editingId === id) return;
-            $scope.db.child(id).remove();
+            window.db.child(id).remove();
         });
     };
 
@@ -152,21 +176,56 @@ todo.controller("Controller", function Controller($scope, $uibModal, $location) 
         $event.stopPropagation();
         $location.path('detail/' + id);
     };
+
+    $scope.login = function () {
+        firebase.auth().signInWithEmailAndPassword($scope.usernameInput, $scope.passwordInput).catch(function (error) {
+            alert('unable to auth');
+        });
+    };
+
+    $scope.logout = function () {
+        firebase.auth().signOut();
+    }
 });
 
 todo.controller("DetailController", function DetailController($scope, $routeParams, $location) {
     $scope.currentItem = {};
-    $scope.db = firebase.database().ref("/");
-    $scope.db.child($routeParams.id).once('value').then(function (doc) {
-        doc = doc.val();
-        $scope.currentItem.title = doc.title;
-        $scope.currentItem.date = doc.title; //TODO
-        $scope.currentItem.completed = doc.completed ? "completed" : "not completed";
-        $scope.currentItem.details = doc.details;
-        $scope.$apply();
+    firebase.auth().onAuthStateChanged(function (user) {
+        if (user.uid) {
+            $scope.u = user.uid;
+            window.db = firebase.database().ref("/" + user.uid);
+            window.db.on('value', function (data) {
+                data = data.val();
+                var newItems = [];
+                for (var key in data) {
+                    if (!data.hasOwnProperty(key)) continue;
+                    data[key].id = key;
+                    /*var index = containsObject(data[key], $scope.items);
+                    console.log(index);*/
+                    /*if (index) {
+                        $scope.items[index - 1] = data[key];
+                    } else {
+                        $scope.items.push(data[key]);
+                    }*/
+                    newItems.push(data[key]);
+                }
+                $scope.items = newItems;
+                if (!$scope.$$phase) {
+                    $scope.$apply();
+                }
+            });
+            window.db.child($routeParams.id).once('value').then(function (doc) {
+                doc = doc.val();
+                $scope.currentItem.title = doc.title;
+                $scope.currentItem.date = doc._id;
+                $scope.currentItem.completed = doc.completed ? "completed" : "not completed";
+                $scope.currentItem.details = doc.details;
+                $scope.$apply();
+            });
+        }
     });
 
     $scope.goBack = function () {
         $location.path('/');
-    }
+    };
 });
