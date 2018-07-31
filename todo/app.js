@@ -1,7 +1,7 @@
 /**
  * Created by jstenger on 08.08.2016.
  */
-var todo = angular.module("todo", ['ngAnimate', 'ngSanitize', 'ngRoute', 'ui.bootstrap']);
+var app = angular.module("todo", ['ngAnimate', 'ngSanitize', 'ngRoute', 'ui.bootstrap']);
 
 // Initialize Firebase
 var config = {
@@ -14,7 +14,7 @@ var config = {
 };
 firebase.initializeApp(config);
 
-todo.config(function ($routeProvider) {
+app.config(function ($routeProvider) {
     $routeProvider
         .when("/", {
             templateUrl: "listView.html"
@@ -26,18 +26,7 @@ todo.config(function ($routeProvider) {
 
 window.db = {};
 
-function containsObject(obj, list) {
-    var i;
-    for (i = 0; i < list.length; i++) {
-        if (list[i].id === obj.id) {
-            return i + 1;
-        }
-    }
-
-    return 0;
-}
-
-todo.controller("Controller", function Controller($scope, $uibModal, $location) {
+app.controller("Controller", function Controller($scope, $uibModal, $location) {
     $scope.params = {};
     $scope.items = [];
     $scope.editing = "hidden";
@@ -175,7 +164,7 @@ todo.controller("Controller", function Controller($scope, $uibModal, $location) 
     $scope.displayLogin = false;
 });
 
-todo.controller("DetailController", function DetailController($scope, $routeParams, $location) {
+app.controller("DetailController", function DetailController($scope, $routeParams, $location) {
     $scope.currentItem = {};
     initAuthedDB($scope, function () {
         window.db.child($routeParams.id).on('value', function (doc) {
@@ -220,7 +209,9 @@ function initAuthedDB($scope, callback) {
                     $scope.$apply();
                 }
             });
-            callback();
+            if (typeof callback === 'function') {
+                callback();
+            }
         } else {
             $scope.u = 0;
             if (!$scope.$$phase) {
