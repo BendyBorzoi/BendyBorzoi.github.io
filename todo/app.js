@@ -29,7 +29,6 @@ window.db = {};
 app.controller("Controller", function Controller($scope, $uibModal, $location) {
     $scope.params = {};
     $scope.items = [];
-    $scope.editing = "hidden";
     $scope.editingId = {};
     $scope.tempTitle = {};
     $scope.u = {};
