@@ -3,68 +3,36 @@
 }
 
 .listButton {
+    font-size: 0.5em;
     float: right;
+    padding: 7px 7px 8px 8px;
 }
 
 .singleTodo {
     overflow: hidden;
 }
 
-/*body{
-	color: #ccc;
-	background-color: #333;
-}
-
-.todoContainer{
+.todoContainer {
     font-size: 1.5em;
 }
 
-.details{
+.details {
     font-size: 0.7em;
     opacity: 0.7;
 }
 
-
-.todoDisplay{
-    list-style: none;
-}
-
-.todoDisplay .singleTodo:hover .listButton{
-    opacity: 1;
-}
-
-
-
-.singleTodo{
+.singleTodo {
     padding-left: 7px;
 }
 
-.singleTodo:hover{
-    background-color: #444;
+.singleTodo:hover {
+    background-color: #eee;
     cursor: pointer;
 }
 
-.editInput{
+.editInput {
     position: static;
     display: flex;
-}
-
-.editTextInput{
-	background-color: #444;
-}
-
-.form-control{
-	background-color: #444;
-	color: #ccc;
-}
-
-.addButton{
-	background-color: #444;
-	color: #ccc;
-}
-
-.modal-content{
-    background-color: #333;
 }
 
 .loginWindow {
@@ -72,7 +40,7 @@
     transform: translate(-50%, -50%);
     top: 50vh;
     left: 50vw;
-}*/
+}
 
 .loginWindow form {
     float: left;
