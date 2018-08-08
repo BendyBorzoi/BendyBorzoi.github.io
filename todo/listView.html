@@ -3,19 +3,13 @@
         <div class="todoContainer">
             <div ng-controller="Controller">
                 <div ng-show="!u" class="loginWindow">
-                    <form ng-submit="login()" ng-show="displayLogin">Login
-                        <input ng-model="usernameInput" title="usernameInput" class="form-control">
-                        <input ng-model="passwordInput" title="passwordInput" type="password" class="form-control">
-                        <input type="submit" class="btn btn-default addButton">
-                    </form>
-                    <form ng-submit="signUp()" ng-show="!displayLogin">Register
+                    <p>Please sign in or register!</p>
+                    <form ng-submit="signUp()">Register
                         <input ng-model="newUsernameInput" title="newUsernameInput" class="form-control">
                         <input ng-model="newPasswordInput" title="newPasswordInput" type="password"
                                class="form-control">
                         <input type="submit" class="btn btn-default addButton">
                     </form>
-                    <button ng-click="displayLogin = !displayLogin" class="btn btn-default addButton"
-                            ng-bind="displayLogin ? 'register instead' : 'login instead'"></button>
                 </div>
                 <div ng-show="u">
                     <div class="inputContainer">
@@ -26,19 +20,22 @@
                                data-ng-keypress="keyPressed($event)">
                     </div>
 
-                    <ul class="todoDisplay">
-                        <li class="singleTodo" ng-repeat="item in items" data-ng-click="sendCheckEdit(item.id)">
+                    <div class="todoDisplay">
+                        <div class="singleTodo" ng-repeat="item in items" data-ng-click="sendCheckEdit(item.id)">
                             <input title="" type="checkbox" data-ng-checked="item.completed">
                             {{item.title}}
                             <span class="details">{{item.details}}</span>
-                            <button class="listButton btn-default" data-ng-click="removeTodo(item.id,$event)">✕</button>
-                            <button class="listButton btn-default" data-ng-click="showEditForm(item.id,$event)">edit
+                            <button class="listButton btn btn-default"
+                                    data-ng-click="removeTodo(item.id,$event)">✕
                             </button>
-                            <button class="listButton btn-default" data-ng-click="goToDetail(item.id,$event)">details
+                            <button class="listButton btn btn-default"
+                                    data-ng-click="showEditForm(item.id,$event)">edit
                             </button>
-                        </li>
-                    </ul>
-                    <button class="btn btn-default addButton logout" ng-click="logout()">logout</button>
+                            <button class="listButton btn btn-default"
+                                    data-ng-click="goToDetail(item.id,$event)">details
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

@@ -22,18 +22,83 @@ app.config(function ($routeProvider) {
         .when("/detail/:id", {
             templateUrl: "detailView.html"
         })
+        .when("/about", {
+            templateUrl: "about.html"
+        });
+});
+
+app.run(function ($rootScope) {
+    firebase.auth().onAuthStateChanged(function (user) {
+        if (user && user.uid) {
+            $rootScope.u = user.uid;
+            $rootScope.db = firebase.database().ref("/" + user.uid);
+        } else {
+            $rootScope.u = 0;
+        }
+        if (!$rootScope.$$phase) {
+            $rootScope.$apply();
+        }
+    });
 });
 
 window.db = {};
 
-app.controller("Controller", function Controller($scope, $uibModal, $location) {
+app.controller("routeController", function ($scope) {
+    $scope.nav = [
+        {
+            href: '#!/',
+            name: 'Todo List'
+        },
+        {
+            href: '#!/about',
+            name: 'About'
+        }
+    ];
+
+    $scope.login = function () {
+        firebase.auth().signInWithEmailAndPassword($scope.usernameInput, $scope.passwordInput).catch(function (error) {
+            alert('unable to auth');
+        }).then(function () {
+            $scope.usernameInput = '';
+            $scope.passwordInput = '';
+        });
+    };
+
+    $scope.logout = function () {
+        firebase.auth().signOut();
+    };
+});
+
+app.controller("Controller", function Controller($scope, $uibModal, $location, $rootScope) {
     $scope.params = {};
     $scope.items = [];
     $scope.editingId = {};
-    $scope.tempTitle = {};
-    $scope.u = {};
 
-    initAuthedDB($scope);
+    firebase.auth().onAuthStateChanged(function (user) {
+        if (user && user.uid) {
+            $rootScope.db.on('value', function (data) {
+                data = data.val();
+                var newItems = [];
+                for (var key in data) {
+                    if (!data.hasOwnProperty(key)) continue;
+                    data[key].id = key;
+                    /*var index = containsObject(data[key], $scope.items);
+                console.log(index);*/
+                    /*if (index) {
+                    $scope.items[index - 1] = data[key];
+                } else {
+                    $scope.items.push(data[key]);
+                }*/
+                    newItems.push(data[key]);
+                }
+                $scope.items = newItems;
+                if (!$scope.$$phase) {
+                    $scope.$apply();
+                }
+            });
+        }
+    });
+
 
     $scope.showEditForm = function (id, $event) {
         $event.stopPropagation();
@@ -46,7 +111,7 @@ app.controller("Controller", function Controller($scope, $uibModal, $location) {
                     return "An edit is still in progress! Do you really want to leave?";
                 };
 
-                window.db.child(id).once('value').then(function (doc) {
+                $rootScope.db.child(id).once('value').then(function (doc) {
                     doc = doc.val();
                     $scope.tempTitle = doc.title;
                     $scope.tempDetails = doc.details;
@@ -68,11 +133,11 @@ app.controller("Controller", function Controller($scope, $uibModal, $location) {
                 $scope.finalizeEdit = function () {
                     if ($scope.params.editText) {
                         window.onbeforeunload = null;
-                        window.db.child(id).once('value').then(function (doc) {
+                        $rootScope.db.child(id).once('value').then(function (doc) {
                             doc = doc.val();
                             doc.title = $scope.params.editText;
                             doc.details = $scope.params.editDetailText;
-                            window.db.child(id).set(doc);
+                            $rootScope.db.child(id).set(doc);
                             m.close();
                         });
                     }
@@ -96,34 +161,34 @@ app.controller("Controller", function Controller($scope, $uibModal, $location) {
     $scope.sendNewTodo = function () {
         if ($scope.params.text) {
             var todo = {};
-            var id = window.db.push().key;
-            todo[window.db.push().key] = {
+            var id = $rootScope.db.push().key;
+            todo[$rootScope.db.push().key] = {
                 _id: (new Date().toISOString()),
                 title: $scope.params.text,
                 completed: false,
                 details: $scope.params.detailText || "",
-                id: db.push().key
+                id: $rootScope.db.push().key
             };
-            window.db.update(todo);
+            $scope.db.update(todo);
             $scope.params.text = "";
             $scope.params.detailText = "";
         }
     };
 
     $scope.sendCheckEdit = function (id) {
-        window.db.child(id).once('value').then(function (doc) {
+        $rootScope.db.child(id).once('value').then(function (doc) {
             doc = doc.val();
             doc.completed = !doc.completed;
-            window.db.child(id).set(doc);
+            $scope.db.child(id).set(doc);
         });
     };
 
     $scope.removeTodo = function (id, $event) {
         $event.stopPropagation();
-        window.db.child(id).once('value').then(function (doc) {
+        $scope.db.child(id).once('value').then(function (doc) {
             doc = doc.val();
             if ($scope.editingId === id) return;
-            window.db.child(id).remove();
+            $rootScope.db.child(id).remove();
         });
     };
 
@@ -163,59 +228,24 @@ app.controller("Controller", function Controller($scope, $uibModal, $location) {
     $scope.displayLogin = false;
 });
 
-app.controller("DetailController", function DetailController($scope, $routeParams, $location) {
+app.controller("DetailController", function DetailController($scope, $routeParams, $location, $rootScope) {
     $scope.currentItem = {};
-    initAuthedDB($scope, function () {
-        window.db.child($routeParams.id).on('value', function (doc) {
-            doc = doc.val();
-            $scope.currentItem.title = doc.title;
-            $scope.currentItem.date = doc._id;
-            $scope.currentItem.completed = doc.completed ? "completed" : "not completed";
-            $scope.currentItem.details = doc.details;
-            if (!$scope.$$phase) {
-                $scope.$apply();
-            }
-        });
+    firebase.auth().onAuthStateChanged(function (user) {
+        if (user && user.uid) {
+            $rootScope.db.child($routeParams.id).on('value', function (doc) {
+                doc = doc.val();
+                $scope.currentItem.title = doc.title;
+                $scope.currentItem.date = doc._id;
+                $scope.currentItem.completed = doc.completed ? "completed" : "not completed";
+                $scope.currentItem.details = doc.details;
+                if (!$scope.$$phase) {
+                    $scope.$apply();
+                }
+            });
+        }
     });
 
     $scope.goBack = function () {
         $location.path('/');
     };
 });
-
-function initAuthedDB($scope, callback) {
-    firebase.auth().onAuthStateChanged(function (user) {
-        if (user && user.uid) {
-            $scope.u = user.uid;
-            window.db = firebase.database().ref("/" + user.uid);
-            window.db.on('value', function (data) {
-                data = data.val();
-                var newItems = [];
-                for (var key in data) {
-                    if (!data.hasOwnProperty(key)) continue;
-                    data[key].id = key;
-                    /*var index = containsObject(data[key], $scope.items);
-                console.log(index);*/
-                    /*if (index) {
-                    $scope.items[index - 1] = data[key];
-                } else {
-                    $scope.items.push(data[key]);
-                }*/
-                    newItems.push(data[key]);
-                }
-                $scope.items = newItems;
-                if (!$scope.$$phase) {
-                    $scope.$apply();
-                }
-            });
-            if (typeof callback === 'function') {
-                callback();
-            }
-        } else {
-            $scope.u = 0;
-            if (!$scope.$$phase) {
-                $scope.$apply();
-            }
-        }
-    });
-}

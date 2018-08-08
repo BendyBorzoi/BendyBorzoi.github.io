@@ -1,4 +1,16 @@
-body{
+.inputContainer {
+    display: flex;
+}
+
+.listButton {
+    float: right;
+}
+
+.singleTodo {
+    overflow: hidden;
+}
+
+/*body{
 	color: #ccc;
 	background-color: #333;
 }
@@ -12,9 +24,6 @@ body{
     opacity: 0.7;
 }
 
-.inputContainer{
-    display: flex;
-}
 
 .todoDisplay{
     list-style: none;
@@ -24,14 +33,7 @@ body{
     opacity: 1;
 }
 
-.listButton{
-    border: none;
-    font-size: 0.5em;
-    opacity: 0;
-    float: right;
-    padding: 7px 7px 8px 8px;
-    background-color: #666;
-}
+
 
 .singleTodo{
     padding-left: 7px;
@@ -70,6 +72,11 @@ body{
     transform: translate(-50%, -50%);
     top: 50vh;
     left: 50vw;
+}*/
+
+.loginWindow form {
+    float: left;
+    margin: 10px;
 }
 
 .logout {
