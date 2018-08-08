@@ -1,7 +1,4 @@
-/**
- * Created by jstenger on 08.08.2016.
- */
-var app = angular.module("todo", ['ngAnimate', 'ngSanitize', 'ngRoute', 'ui.bootstrap']);
+let app = angular.module("todo", ['ngAnimate', 'ngSanitize', 'ngRoute', 'ui.bootstrap']);
 
 app.config(function ($routeProvider) {
     $routeProvider
@@ -17,8 +14,7 @@ app.config(function ($routeProvider) {
 });
 
 app.run(function ($rootScope) {
-// Initialize Firebase
-    var config = {
+    let config = {
         apiKey: "AIzaSyBq03qM_RMDydH38eW42cL_KfYFQE8bNOo",
         authDomain: "simple-todo-app-ng.firebaseapp.com",
         databaseURL: "https://simple-todo-app-ng.firebaseio.com",
@@ -93,7 +89,7 @@ app.controller("Controller", function Controller($scope, $uibModal, $location, $
 
     $scope.showEditForm = function (id, $event) {
         $event.stopPropagation();
-        var m = $uibModal.open({
+        let m = $uibModal.open({
             templateUrl: 'editModal.html',
             backdrop: "static",
             controller: function ($scope, id, $rootScope) {
@@ -145,8 +141,8 @@ app.controller("Controller", function Controller($scope, $uibModal, $location, $
 
     $scope.sendNewTodo = function () {
         if ($scope.params.text) {
-            var todo = {};
-            var id = $rootScope.db.push().key;
+            let todo = {};
+            let id = $rootScope.db.push().key;
             todo[id] = {
                 _id: (new Date().toISOString()),
                 title: $scope.params.text,
