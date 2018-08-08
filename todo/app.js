@@ -3,17 +3,6 @@
  */
 var app = angular.module("todo", ['ngAnimate', 'ngSanitize', 'ngRoute', 'ui.bootstrap']);
 
-// Initialize Firebase
-var config = {
-    apiKey: "AIzaSyBq03qM_RMDydH38eW42cL_KfYFQE8bNOo",
-    authDomain: "simple-todo-app-ng.firebaseapp.com",
-    databaseURL: "https://simple-todo-app-ng.firebaseio.com",
-    projectId: "simple-todo-app-ng",
-    storageBucket: "",
-    messagingSenderId: "1026888360899"
-};
-firebase.initializeApp(config);
-
 app.config(function ($routeProvider) {
     $routeProvider
         .when("/", {
@@ -28,6 +17,17 @@ app.config(function ($routeProvider) {
 });
 
 app.run(function ($rootScope) {
+// Initialize Firebase
+    var config = {
+        apiKey: "AIzaSyBq03qM_RMDydH38eW42cL_KfYFQE8bNOo",
+        authDomain: "simple-todo-app-ng.firebaseapp.com",
+        databaseURL: "https://simple-todo-app-ng.firebaseio.com",
+        projectId: "simple-todo-app-ng",
+        storageBucket: "",
+        messagingSenderId: "1026888360899"
+    };
+    firebase.initializeApp(config);
+
     firebase.auth().onAuthStateChanged(function (user) {
         if (user && user.uid) {
             $rootScope.u = user.uid;
@@ -40,8 +40,6 @@ app.run(function ($rootScope) {
         }
     });
 });
-
-window.db = {};
 
 app.controller("routeController", function ($scope) {
     $scope.nav = [
@@ -57,7 +55,7 @@ app.controller("routeController", function ($scope) {
 
     $scope.login = function () {
         firebase.auth().signInWithEmailAndPassword($scope.usernameInput, $scope.passwordInput).catch(function (error) {
-            alert('unable to auth');
+            alert(error.message);
         }).then(function () {
             $scope.usernameInput = '';
             $scope.passwordInput = '';
@@ -82,13 +80,6 @@ app.controller("Controller", function Controller($scope, $uibModal, $location, $
                 for (var key in data) {
                     if (!data.hasOwnProperty(key)) continue;
                     data[key].id = key;
-                    /*var index = containsObject(data[key], $scope.items);
-                console.log(index);*/
-                    /*if (index) {
-                    $scope.items[index - 1] = data[key];
-                } else {
-                    $scope.items.push(data[key]);
-                }*/
                     newItems.push(data[key]);
                 }
                 $scope.items = newItems;
@@ -100,7 +91,7 @@ app.controller("Controller", function Controller($scope, $uibModal, $location, $
     });
 
 
-    $scope.showEditForm = function (id, $event, $rootScope) {
+    $scope.showEditForm = function (id, $event) {
         $event.stopPropagation();
         var m = $uibModal.open({
             templateUrl: 'editModal.html',
@@ -121,12 +112,6 @@ app.controller("Controller", function Controller($scope, $uibModal, $location, $
 
                 $scope.cancelEdit = function () {
                     window.onbeforeunload = null;
-                    /*db.child(id).once('value').then(function (doc) {
-                        doc = doc.val();
-                        doc.title = $scope.tempTitle;
-                        doc.details = $scope.tempDetails;
-                        db.child(id).set(doc);
-                    });*/
                     m.close();
                 };
 
@@ -162,7 +147,7 @@ app.controller("Controller", function Controller($scope, $uibModal, $location, $
         if ($scope.params.text) {
             var todo = {};
             var id = $rootScope.db.push().key;
-            todo[$rootScope.db.push().key] = {
+            todo[id] = {
                 _id: (new Date().toISOString()),
                 title: $scope.params.text,
                 completed: false,
@@ -185,8 +170,7 @@ app.controller("Controller", function Controller($scope, $uibModal, $location, $
 
     $scope.removeTodo = function (id, $event) {
         $event.stopPropagation();
-        $scope.db.child(id).once('value').then(function (doc) {
-            doc = doc.val();
+        $scope.db.child(id).once('value').then(function () {
             if ($scope.editingId === id) return;
             $rootScope.db.child(id).remove();
         });
@@ -205,7 +189,7 @@ app.controller("Controller", function Controller($scope, $uibModal, $location, $
 
     $scope.login = function () {
         firebase.auth().signInWithEmailAndPassword($scope.usernameInput, $scope.passwordInput).catch(function (error) {
-            alert('unable to auth');
+            alert(error.message);
         }).then(function () {
             $scope.usernameInput = '';
             $scope.passwordInput = '';
@@ -214,7 +198,7 @@ app.controller("Controller", function Controller($scope, $uibModal, $location, $
 
     $scope.signUp = function () {
         firebase.auth().createUserWithEmailAndPassword($scope.newUsernameInput, $scope.newPasswordInput).catch(function (error) {
-            alert('unable to auth');
+            alert(error.message);
         }).then(function () {
             $scope.newUsernameInput = '';
             $scope.newPasswordInput = '';
