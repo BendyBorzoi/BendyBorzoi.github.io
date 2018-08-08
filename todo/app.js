@@ -100,12 +100,12 @@ app.controller("Controller", function Controller($scope, $uibModal, $location, $
     });
 
 
-    $scope.showEditForm = function (id, $event) {
+    $scope.showEditForm = function (id, $event, $rootScope) {
         $event.stopPropagation();
         var m = $uibModal.open({
             templateUrl: 'editModal.html',
             backdrop: "static",
-            controller: function ($scope, id) {
+            controller: function ($scope, id, $rootScope) {
                 $scope.params = {};
                 window.onbeforeunload = function () {
                     return "An edit is still in progress! Do you really want to leave?";
