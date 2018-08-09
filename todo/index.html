@@ -27,7 +27,7 @@
     <script src="app.js"></script>
 </head>
 <body>
-<div data-ng-app="todo">
+<div ng-cloak data-ng-app="todo">
     <nav class="navbar navbar-default navbar-static-top" ng-controller="routeController">
         <div class="container">
             <div class="navbar-header">
@@ -63,9 +63,7 @@
             </div>
         </div>
     </nav>
-    <div class="container">
-        <div class="ng-view"></div>
-    </div>
+    <div class="ng-view"></div>
 </div>
 </body>
 </html>
