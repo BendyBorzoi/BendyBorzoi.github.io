@@ -72,6 +72,9 @@
     let tesla = 0;
     let diff = 0;
 
+    let pewrequestOngoing = false;
+    let tesrequestOngoing = false;
+
     let xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function () {
         if (this.readyState === 4 && this.status === 200) {
@@ -104,28 +107,36 @@
     }, 1000);
 
     function getPew() {
-        let xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function () {
-            if (this.readyState === 4 && this.status === 200) {
-                pewpewdies = +this.responseText;
-                document.getElementById('pewpewdies').innerHTML = Intl.NumberFormat().format(pewpewdies);
-                updateOutput();
-            }
-        };
-        xhttp.open("GET", "https://bastet.socialblade.com/youtube/lookup?query=UC-lHJZR3Gqxm24_Vd_AJ5Yw", true);
-        xhttp.send();
+        if (!pewrequestOngoing) {
+            pewrequestOngoing = true;
+            let xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState === 4 && this.status === 200) {
+                    pewpewdies = +this.responseText;
+                    document.getElementById('pewpewdies').innerHTML = Intl.NumberFormat().format(pewpewdies);
+                    updateOutput();
+                    pewrequestOngoing = false;
+                }
+            };
+            xhttp.open("GET", "https://bastet.socialblade.com/youtube/lookup?query=UC-lHJZR3Gqxm24_Vd_AJ5Yw", true);
+            xhttp.send();
+        }
     }
 
     function getTesla() {
-        let xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function () {
-            if (this.readyState === 4 && this.status === 200) {
-                tesla = +this.responseText;
-                document.getElementById('tesla').innerHTML = Intl.NumberFormat().format(tesla);
-            }
-        };
-        xhttp.open("GET", "https://bastet.socialblade.com/youtube/lookup?query=UCq-Fj5jknLsUf-MWSy4_brA", true);
-        xhttp.send();
+        if (!tesrequestOngoing) {
+            tesrequestOngoing = true;
+            let xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState === 4 && this.status === 200) {
+                    tesla = +this.responseText;
+                    document.getElementById('tesla').innerHTML = Intl.NumberFormat().format(tesla);
+                    tesrequestOngoing = false;
+                }
+            };
+            xhttp.open("GET", "https://bastet.socialblade.com/youtube/lookup?query=UCq-Fj5jknLsUf-MWSy4_brA", true);
+            xhttp.send();
+        }
     }
 
     function updateOutput() {
