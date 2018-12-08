@@ -3,11 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <title>Bihsc Lasagna</title>
+    <style>
+        body {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 30pt;
+            color: #cccccc;
+            background: #222222;
+        }
+        table {
+            border-collapse: collapse;
+        }
+        td {
+            border: 1px solid #aaaaaa;
+            padding: 5px;
+            min-width: 450px;
+        }
+    </style>
 </head>
 <body>
-<div id="diff"></div>
+<table>
+    <thead>
+    <tr>
+        <th></th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>Pewpewdies:</td>
+        <td><span id="pewpewdies"></span></td>
+    </tr>
+    <tr>
+        <td>Tesla:</td>
+        <td><span id="tesla"></span></td>
+    </tr>
+    <tr>
+        <td>Pood's lead in subs at<br><span id="now"></span></td>
+        <td><span id="oDiff"></span></td>
+    </tr>
+    <tr>
+        <td>Pood's lead in subs now:</td>
+        <td><span id="diff"></span></td>
+    </tr>
+    <tr>
+        <td>Change in Pood's lead:</td>
+        <td><span id="diffDiff"></span></td>
+    </tr>
+    </tbody>
+</table>
 <script>
+    Number.prototype.toFixedDown = function(digits) {
+        var re = new RegExp("(\\d+\\.\\d{" + digits + "})(\\d)"),
+            m = this.toString().match(re);
+        return m ? parseFloat(m[1]) : this.valueOf();
+    };
+
     let oDiff = 0;
+    let oDate = new Date();
     let pewpewdies = 0;
     let tesla = 0;
     let diff = 0;
@@ -16,6 +71,9 @@
     xhttp.onreadystatechange = function () {
         if (this.readyState === 4 && this.status === 200) {
             oDiff += +this.responseText;
+            if (+oDiff - +this.responseText !== 0) {
+                document.getElementById('oDiff').innerHTML = (Intl.NumberFormat().format(oDiff));
+            }
         }
     };
     xhttp.open("GET", "https://bastet.socialblade.com/youtube/lookup?query=UC-lHJZR3Gqxm24_Vd_AJ5Yw", true);
@@ -25,10 +83,15 @@
     xhttp2.onreadystatechange = function () {
         if (this.readyState === 4 && this.status === 200) {
             oDiff -= +this.responseText;
+            if (+oDiff + +this.responseText !== 0) {
+                document.getElementById('oDiff').innerHTML = (Intl.NumberFormat().format(oDiff));
+            }
         }
     };
     xhttp2.open("GET", "https://bastet.socialblade.com/youtube/lookup?query=UCq-Fj5jknLsUf-MWSy4_brA", true);
     xhttp2.send();
+
+    document.getElementById('now').innerHTML = getFormattedString(new Date());
 
     setInterval(() => {
         getPew();
@@ -40,6 +103,7 @@
         xhttp.onreadystatechange = function () {
             if (this.readyState === 4 && this.status === 200) {
                 pewpewdies = +this.responseText;
+                document.getElementById('pewpewdies').innerHTML = Intl.NumberFormat().format(pewpewdies);
                 updateOutput();
             }
         };
@@ -52,7 +116,7 @@
         xhttp.onreadystatechange = function () {
             if (this.readyState === 4 && this.status === 200) {
                 tesla = +this.responseText;
-                updateOutput();
+                document.getElementById('tesla').innerHTML = Intl.NumberFormat().format(tesla);
             }
         };
         xhttp.open("GET", "https://bastet.socialblade.com/youtube/lookup?query=UCq-Fj5jknLsUf-MWSy4_brA", true);
@@ -60,8 +124,35 @@
     }
 
     function updateOutput() {
-        diff = pewpewdies - tesla;
-        document.getElementById('diff').innerHTML = diff - oDiff;
+        if (pewpewdies > 0 && tesla > 0) {
+            diff = pewpewdies - tesla;
+            document.getElementById('diff').innerHTML = Intl.NumberFormat().format(diff);
+            document.getElementById('diffDiff').innerHTML = Intl.NumberFormat().format(diff - oDiff) + ' in ' + timeDiff();
+        }
+    }
+
+    function timeDiff() {
+        let diff = new Date().getTime() - oDate.getTime();
+        if (diff < 60000) {
+            return (diff / 1000).toFixedDown(0) + ' sec';
+        } else if (diff < 3600000){
+            return (diff / 60000).toFixedDown(0) + ' min ' + ((diff % 60000) / 1000).toFixedDown(0) + ' sec';
+        } else if (diff < 86400000) {
+            return (diff / 3600000).toFixedDown(0) + ' h ' + ((diff % 3600000) / 60000).toFixedDown(0) + ' min';
+        } else {
+            return (diff / 86400000).toFixedDown(0) + ' d ' + ((diff % 86400000) / 3600000).toFixedDown(0) + ' h';
+        }
+
+    }
+
+    function getFormattedString(d) {
+        var yyyy = d.getFullYear();
+        var mm = d.getMonth() < 9 ? "0" + (d.getMonth() + 1) : (d.getMonth() + 1);
+        var dd  = d.getDate() < 10 ? "0" + d.getDate() : d.getDate();
+        var hh = d.getHours() < 10 ? "0" + d.getHours() : d.getHours();
+        var min = d.getMinutes() < 10 ? "0" + d.getMinutes() : d.getMinutes();
+        var ss = d.getSeconds() < 10 ? "0" + d.getSeconds() : d.getSeconds();
+        return yyyy + '-' + mm + '-' + dd + ' ' + hh + ':' + min + ':' + ss;
     }
 </script>
 </body>
