@@ -5,16 +5,16 @@
     <title>Bihsc Lasagna</title>
     <style>
         body {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
             font-size: 30pt;
             color: #cccccc;
             background: #222222;
         }
         table {
             border-collapse: collapse;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
         }
         td {
             border: 1px solid #aaaaaa;
@@ -54,6 +54,11 @@
     </tr>
     </tbody>
 </table>
+<div id="about" style="position: fixed; bottom: 0; right: 0; padding: 5px; font-size: 10pt; text-align: right">
+    <button onclick="hideAbout()">hide this</button>
+    I don't profit off of this, so, please don't sue me, Tesla.<br>
+    This code was made by me, although some parts are copy pasted from stackoverflow, mainly the formatting bits.
+</div>
 <script>
     Number.prototype.toFixedDown = function(digits) {
         var re = new RegExp("(\\d+\\.\\d{" + digits + "})(\\d)"),
@@ -153,6 +158,10 @@
         var min = d.getMinutes() < 10 ? "0" + d.getMinutes() : d.getMinutes();
         var ss = d.getSeconds() < 10 ? "0" + d.getSeconds() : d.getSeconds();
         return yyyy + '-' + mm + '-' + dd + ' ' + hh + ':' + min + ':' + ss;
+    }
+
+    let hideAbout = function() {
+        document.getElementById('about').style.display = 'none';
     }
 </script>
 </body>
