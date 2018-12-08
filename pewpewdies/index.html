@@ -174,13 +174,38 @@
     function timeDiff() {
         let diff = new Date().getTime() - oDate.getTime();
         if (diff < 60000) {
-            return (diff / 1000).toFixedDown(0) + ' sec';
+            let s = (diff / 1000).toFixedDown(0);
+            if (s < 10) {
+                s = '0' + s;
+            }
+            return s + ' sec';
         } else if (diff < 3600000){
-            return (diff / 60000).toFixedDown(0) + ' min ' + ((diff % 60000) / 1000).toFixedDown(0) + ' sec';
+            let m = (diff / 60000).toFixedDown(0);
+            if (m < 10) {
+                m = '0' + m;
+            }
+            let s = ((diff % 60000) / 1000).toFixedDown(0);
+            if (s < 10) {
+                s = '0' + s;
+            }
+            return m + ' min ' + s + ' sec';
         } else if (diff < 86400000) {
-            return (diff / 3600000).toFixedDown(0) + ' h ' + ((diff % 3600000) / 60000).toFixedDown(0) + ' min';
+            let h = (diff / 3600000).toFixedDown(0);
+            if (h < 10) {
+                h = '0' + h;
+            }
+            let m = ((diff % 3600000) / 60000).toFixedDown(0);
+            if (m < 10) {
+                m = '0' + m;
+            }
+            return h + ' h ' + m + ' min';
         } else {
-            return (diff / 86400000).toFixedDown(0) + ' d ' + ((diff % 86400000) / 3600000).toFixedDown(0) + ' h';
+            let d = (diff / 86400000).toFixedDown(0);
+            let h = ((diff % 86400000) / 3600000).toFixedDown(0);
+            if (h < 10) {
+                h = '0' + h;
+            }
+            return d + ' d ' + h + ' h';
         }
 
     }
