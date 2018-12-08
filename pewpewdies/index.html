@@ -6,7 +6,7 @@
     <link rel="icon" type="image/png" href="Untitled-11.png"/>
     <style>
         body {
-            font-size: 30pt;
+            font-size: 27pt;
             color: #cccccc;
             background: #222222;
         }
@@ -22,6 +22,12 @@
             padding: 5px;
             min-width: 450px;
         }
+        .data {
+            font-family: 'courier new', 'sans-serif';
+        }
+        .dataCell {
+            text-align: right;
+        }
     </style>
 </head>
 <body>
@@ -35,23 +41,27 @@
     <tbody>
     <tr>
         <td>Pewpewdies:</td>
-        <td><span id="pewpewdies"></span></td>
+        <td class="dataCell"><span class="data" id="pewpewdies"></span></td>
     </tr>
     <tr>
         <td>Tesla:</td>
-        <td><span id="tesla"></span></td>
+        <td class="dataCell"><span class="data" id="tesla"></span></td>
     </tr>
     <tr>
-        <td>Pood's lead in subs at<br><span id="now"></span></td>
-        <td><span id="oDiff"></span></td>
+        <td>Pood's lead in subs at<br><span class="data" id="now"></span></td>
+        <td class="dataCell"><span class="data" id="oDiff"></span></td>
     </tr>
     <tr>
         <td>Pood's lead in subs now:</td>
-        <td><span id="diff"></span></td>
+        <td class="dataCell"><span class="data" id="diff"></span></td>
     </tr>
     <tr>
         <td>Change in Pood's lead:</td>
-        <td><span id="diffDiff"></span></td>
+        <td class="dataCell"><span class="data" id="diffDiff"></span></td>
+    </tr>
+    <tr>
+        <td>Time passed:</td>
+        <td class="dataCell"><span class="data" id="time"></span></td>
     </tr>
     </tbody>
 </table>
@@ -85,6 +95,7 @@
             oDiff += +this.responseText;
             if (+oDiff - +this.responseText !== 0) {
                 document.getElementById('oDiff').innerHTML = (Intl.NumberFormat().format(oDiff));
+                updateOutput();
             }
         }
     };
@@ -97,6 +108,7 @@
             oDiff -= +this.responseText;
             if (+oDiff + +this.responseText !== 0) {
                 document.getElementById('oDiff').innerHTML = (Intl.NumberFormat().format(oDiff));
+                updateOutput();
             }
         }
     };
@@ -105,9 +117,16 @@
 
     document.getElementById('now').innerHTML = getFormattedString(new Date());
 
+    getPew();
+    getTesla();
+
     setInterval(() => {
         getPew();
         getTesla();
+    }, 3000);
+
+    setInterval(() => {
+        updateOutput();
     }, 1000);
 
     function getPew() {
@@ -117,8 +136,6 @@
             xhttp.onreadystatechange = function () {
                 if (this.readyState === 4 && this.status === 200) {
                     pewpewdies = +this.responseText;
-                    document.getElementById('pewpewdies').innerHTML = Intl.NumberFormat().format(pewpewdies);
-                    updateOutput();
                 }
                 pewrequestOngoing = false;
             };
@@ -134,7 +151,6 @@
             xhttp.onreadystatechange = function () {
                 if (this.readyState === 4 && this.status === 200) {
                     tesla = +this.responseText;
-                    document.getElementById('tesla').innerHTML = Intl.NumberFormat().format(tesla);
                 }
                 tesrequestOngoing = false;
             };
@@ -146,8 +162,11 @@
     function updateOutput() {
         if (pewpewdies > 0 && tesla > 0) {
             diff = pewpewdies - tesla;
+            document.getElementById('pewpewdies').innerHTML = Intl.NumberFormat().format(pewpewdies);
+            document.getElementById('tesla').innerHTML = Intl.NumberFormat().format(tesla);
             document.getElementById('diff').innerHTML = Intl.NumberFormat().format(diff);
-            document.getElementById('diffDiff').innerHTML = Intl.NumberFormat().format(diff - oDiff) + ' in ' + timeDiff();
+            document.getElementById('diffDiff').innerHTML = Intl.NumberFormat().format(diff - oDiff);
+            document.getElementById('time').innerHTML = timeDiff();
             document.title = Intl.NumberFormat().format(diff);
         }
     }
