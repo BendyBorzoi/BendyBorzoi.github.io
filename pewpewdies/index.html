@@ -21,7 +21,7 @@
         td {
             border: 1px solid #aaaaaa;
             padding: 5px;
-            min-width: 450px;
+            min-width: 400px;
         }
 
         .data {
@@ -33,16 +33,18 @@
         }
 
         #main {
+            height: 99%;
+            width: 99%;
             position: absolute;
-            top: 50%;
+            /*top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%);*/
         }
     </style>
 </head>
 <body>
 <div id="main">
-    <table>
+    <table style="position: absolute">
         <thead>
         <tr>
             <th></th>
@@ -78,7 +80,7 @@
     </table>
     <canvas id="canvas"></canvas>
 </div>
-<div id="about" style="position: fixed; bottom: 0; right: 0; padding: 5px; font-size: 10pt; text-align: right">
+<div id="about" style="position: fixed; bottom: 0; right: 0; padding: 5px; font-size: 10pt; text-align: right; background: #222222; border: 1px solid #111111">
     <button onclick="hideAbout()">hide this info</button>
     <br>
     Numbers supplied by <a href="https://socialblade.com/">socialblade.com</a>.<br>
