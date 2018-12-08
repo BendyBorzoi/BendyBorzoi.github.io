@@ -4,77 +4,92 @@
     <meta charset="UTF-8">
     <title>Bihsc Lasagna</title>
     <link rel="icon" type="image/png" href="Untitled-11.png"/>
+    <script type="text/javascript" src="Chart.bundle.js"></script>
+    <script type="text/javascript" src="utils.js"></script>
+    <script type="text/javascript" src="moment.min.js"></script>
     <style>
         body {
             font-size: 27pt;
             color: #cccccc;
             background: #222222;
         }
+
         table {
             border-collapse: collapse;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
         }
+
         td {
             border: 1px solid #aaaaaa;
             padding: 5px;
             min-width: 450px;
         }
+
         .data {
             font-family: 'courier new', 'sans-serif';
         }
+
         .dataCell {
             text-align: right;
+        }
+
+        #main {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
         }
     </style>
 </head>
 <body>
-<table>
-    <thead>
-    <tr>
-        <th></th>
-        <th></th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-        <td>Pewpewdies:</td>
-        <td class="dataCell"><span class="data" id="pewpewdies"></span></td>
-    </tr>
-    <tr>
-        <td>Tesla:</td>
-        <td class="dataCell"><span class="data" id="tesla"></span></td>
-    </tr>
-    <tr>
-        <td>Pood's lead in subs at<br><span class="data" id="now"></span></td>
-        <td class="dataCell"><span class="data" id="oDiff"></span></td>
-    </tr>
-    <tr>
-        <td>Pood's lead in subs now:</td>
-        <td class="dataCell"><span class="data" id="diff"></span></td>
-    </tr>
-    <tr>
-        <td>Change in Pood's lead:</td>
-        <td class="dataCell"><span class="data" id="diffDiff"></span></td>
-    </tr>
-    <tr>
-        <td>Time passed:</td>
-        <td class="dataCell"><span class="data" id="time"></span></td>
-    </tr>
-    </tbody>
-</table>
+<div id="main">
+    <table>
+        <thead>
+        <tr>
+            <th></th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Pewpewdies:</td>
+            <td class="dataCell"><span class="data" id="pewpewdies"></span></td>
+        </tr>
+        <tr>
+            <td>Tesla:</td>
+            <td class="dataCell"><span class="data" id="tesla"></span></td>
+        </tr>
+        <tr style="display: none">
+            <td>Pood's lead in subs at<br><span class="data" id="now"></span></td>
+            <td class="dataCell"><span class="data" id="oDiff"></span></td>
+        </tr>
+        <tr style="display: none">
+            <td>Pood's lead in subs now:</td>
+            <td class="dataCell"><span class="data" id="diff"></span></td>
+        </tr>
+        <tr style="display: none">
+            <td>Change in Pood's lead:</td>
+            <td class="dataCell"><span class="data" id="diffDiff"></span></td>
+        </tr>
+        <tr style="display: none">
+            <td>Time passed:</td>
+            <td class="dataCell"><span class="data" id="time"></span></td>
+        </tr>
+        </tbody>
+    </table>
+    <canvas id="canvas"></canvas>
+</div>
 <div id="about" style="position: fixed; bottom: 0; right: 0; padding: 5px; font-size: 10pt; text-align: right">
-    <button onclick="hideAbout()">hide this info</button><br>
+    <button onclick="hideAbout()">hide this info</button>
+    <br>
     Numbers supplied by <a href="https://socialblade.com/">socialblade.com</a>.<br>
     <a href="https://socialblade.com/youtube/c/pewdiepie">https://socialblade.com/youtube/c/pewdiepie</a><br>
     <a href="https://socialblade.com/youtube/c/tseriesmusic">https://socialblade.com/youtube/c/tseriesmusic</a><br>
     I don't profit off of this, so, please don't sue me, Tesla.<br>
+    I used <a href="https://momentjs.com/">moment.js</a> and <a href="https://www.chartjs.org/">chart.js</a> to make the charting possible.<br>
     This code was made by me, although some parts are copy pasted from stackoverflow, mainly the formatting bits.
 </div>
 <script>
-    Number.prototype.toFixedDown = function(digits) {
+    Number.prototype.toFixedDown = function (digits) {
         var re = new RegExp("(\\d+\\.\\d{" + digits + "})(\\d)"),
             m = this.toString().match(re);
         return m ? parseFloat(m[1]) : this.valueOf();
@@ -85,6 +100,8 @@
     let pewpewdies = 0;
     let tesla = 0;
     let diff = 0;
+    let xData = localStorage.getItem('xData') ? localStorage.getItem('xData').split(',') : [];
+    let yData = localStorage.getItem('yData') ? localStorage.getItem('yData').split(',') : [];
 
     let pewrequestOngoing = false;
     let tesrequestOngoing = false;
@@ -168,6 +185,7 @@
             document.getElementById('diffDiff').innerHTML = Intl.NumberFormat().format(diff - oDiff);
             document.getElementById('time').innerHTML = timeDiff();
             document.title = Intl.NumberFormat().format(diff);
+            updateGraph();
         }
     }
 
@@ -179,7 +197,7 @@
                 s = '0' + s;
             }
             return s + ' sec';
-        } else if (diff < 3600000){
+        } else if (diff < 3600000) {
             let m = (diff / 60000).toFixedDown(0);
             if (m < 10) {
                 m = '0' + m;
@@ -213,16 +231,95 @@
     function getFormattedString(d) {
         var yyyy = d.getFullYear();
         var mm = d.getMonth() < 9 ? "0" + (d.getMonth() + 1) : (d.getMonth() + 1);
-        var dd  = d.getDate() < 10 ? "0" + d.getDate() : d.getDate();
+        var dd = d.getDate() < 10 ? "0" + d.getDate() : d.getDate();
         var hh = d.getHours() < 10 ? "0" + d.getHours() : d.getHours();
         var min = d.getMinutes() < 10 ? "0" + d.getMinutes() : d.getMinutes();
         var ss = d.getSeconds() < 10 ? "0" + d.getSeconds() : d.getSeconds();
         return yyyy + '-' + mm + '-' + dd + ' ' + hh + ':' + min + ':' + ss;
     }
 
-    let hideAbout = function() {
+    let hideAbout = function () {
         document.getElementById('about').style.display = 'none';
+    };
+
+    function updateGraph() {
+        if (window.myLine) {
+            let time = moment();
+            config.data.labels.push(time);
+
+            config.data.datasets.forEach(function (dataset) {
+                dataset.data.push({x: time, y: diff});
+                xData.push(time);
+                yData.push(diff);
+                localStorage.setItem('xData', xData);
+                localStorage.setItem('yData', yData);
+            });
+
+            window.myLine.update();
+        }
     }
+
+    function getLocalData() {
+        let d = [];
+        xData.forEach((val, key) => d.push({x: val, y: yData[key]}));
+        return d;
+    }
+
+    var config = {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'P vs T',
+                backgroundColor: window.chartColors.red,
+                borderColor: window.chartColors.red,
+                data: getLocalData() || [],
+                fill: false,
+            }]
+        },
+        options: {
+            responsive: true,
+            title: {
+                display: false,
+                text: ''
+            },
+            tooltips: {
+                mode: 'index',
+                intersect: false,
+            },
+            hover: {
+                mode: 'nearest',
+                intersect: true
+            },
+            scales: {
+                xAxes: [{
+                    type: 'time',
+                    time: {
+                        // format: timeFormat,
+                        // round: 'day'
+                        // tooltipFormat: 'll HH:mm'
+                    },
+                    display: true,
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Time'
+                    }
+                }],
+                yAxes: [{
+                    display: true,
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Sub Difference'
+                    }
+                }]
+            }
+        }
+    };
+
+    window.onload = function () {
+        var ctx = document.getElementById('canvas').getContext('2d');
+        window.myLine = new Chart(ctx, config);
+    };
 </script>
 </body>
 </html>
