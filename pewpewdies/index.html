@@ -148,6 +148,7 @@
             diff = pewpewdies - tesla;
             document.getElementById('diff').innerHTML = Intl.NumberFormat().format(diff);
             document.getElementById('diffDiff').innerHTML = Intl.NumberFormat().format(diff - oDiff) + ' in ' + timeDiff();
+            document.title = Intl.NumberFormat().format(diff);
         }
     }
 
