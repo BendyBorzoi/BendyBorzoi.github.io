@@ -102,8 +102,8 @@
         let xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
             if (this.readyState === 4 && this.status === 200) {
-                pewpewdies = +this.responseText;
-                document.getElementById('pewpewdies').innerHTML = Intl.NumberFormat().format(pewpewdies);
+                index = +this.responseText;
+                document.getElementById('pewpewdies').innerHTML = Intl.NumberFormat().format(index);
                 updateOutput();
             }
         };
@@ -124,8 +124,8 @@
     }
 
     function updateOutput() {
-        if (pewpewdies > 0 && tesla > 0) {
-            diff = pewpewdies - tesla;
+        if (index > 0 && tesla > 0) {
+            diff = index - tesla;
             document.getElementById('diff').innerHTML = Intl.NumberFormat().format(diff);
             document.getElementById('diffDiff').innerHTML = Intl.NumberFormat().format(diff - oDiff) + ' in ' + timeDiff();
         }
