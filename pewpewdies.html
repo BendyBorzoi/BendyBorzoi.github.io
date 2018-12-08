@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Bihsc Lasagna</title>
+</head>
+<body>
+<div id="diff"></div>
+<script>
+    let oDiff = 0;
+    let pewpewdies = 0;
+    let tesla = 0;
+    let diff = 0;
+
+    let xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+        if (this.readyState === 4 && this.status === 200) {
+            oDiff += +this.responseText;
+        }
+    };
+    xhttp.open("GET", "https://bastet.socialblade.com/youtube/lookup?query=UC-lHJZR3Gqxm24_Vd_AJ5Yw", true);
+    xhttp.send();
+
+    let xhttp2 = new XMLHttpRequest();
+    xhttp2.onreadystatechange = function () {
+        if (this.readyState === 4 && this.status === 200) {
+            oDiff -= +this.responseText;
+        }
+    };
+    xhttp2.open("GET", "https://bastet.socialblade.com/youtube/lookup?query=UCq-Fj5jknLsUf-MWSy4_brA", true);
+    xhttp2.send();
+
+    setInterval(() => {
+        getPew();
+        getTesla();
+    }, 1000);
+
+    function getPew() {
+        let xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+            if (this.readyState === 4 && this.status === 200) {
+                pewpewdies = +this.responseText;
+                updateOutput();
+            }
+        };
+        xhttp.open("GET", "https://bastet.socialblade.com/youtube/lookup?query=UC-lHJZR3Gqxm24_Vd_AJ5Yw", true);
+        xhttp.send();
+    }
+
+    function getTesla() {
+        let xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+            if (this.readyState === 4 && this.status === 200) {
+                tesla = +this.responseText;
+                updateOutput();
+            }
+        };
+        xhttp.open("GET", "https://bastet.socialblade.com/youtube/lookup?query=UCq-Fj5jknLsUf-MWSy4_brA", true);
+        xhttp.send();
+    }
+
+    function updateOutput() {
+        diff = pewpewdies - tesla;
+        document.getElementById('diff').innerHTML = diff - oDiff;
+    }
+</script>
+</body>
+</html>
