@@ -14,24 +14,6 @@
             background: #222222;
         }
 
-        table {
-            border-collapse: collapse;
-        }
-
-        td {
-            border: 1px solid #aaaaaa;
-            padding: 5px;
-            min-width: 400px;
-        }
-
-        .data {
-            font-family: 'courier new', 'sans-serif';
-        }
-
-        .dataCell {
-            text-align: right;
-        }
-
         #main {
             height: 99%;
             width: 99%;
@@ -40,48 +22,24 @@
             left: 50%;
             transform: translate(-50%, -50%);*/
         }
+
+        #about {
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            padding: 5px;
+            font-size: 10pt;
+            text-align: right;
+            background: #222222;
+            border: 1px solid #111111;
+        }
     </style>
 </head>
 <body>
 <div id="main">
-    <table style="position: absolute; display: none">
-        <thead>
-        <tr>
-            <th></th>
-            <th></th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-            <td>Pewpewdies:</td>
-            <td class="dataCell"><span class="data" id="pewpewdies"></span></td>
-        </tr>
-        <tr>
-            <td>Tesla:</td>
-            <td class="dataCell"><span class="data" id="tesla"></span></td>
-        </tr>
-        <tr style="display: none">
-            <td>Pood's lead in subs at<br><span class="data" id="now"></span></td>
-            <td class="dataCell"><span class="data" id="oDiff"></span></td>
-        </tr>
-        <tr style="display: none">
-            <td>Pood's lead in subs now:</td>
-            <td class="dataCell"><span class="data" id="diff"></span></td>
-        </tr>
-        <tr style="display: none">
-            <td>Change in Pood's lead:</td>
-            <td class="dataCell"><span class="data" id="diffDiff"></span></td>
-        </tr>
-        <tr style="display: none">
-            <td>Time passed:</td>
-            <td class="dataCell"><span class="data" id="time"></span></td>
-        </tr>
-        </tbody>
-    </table>
     <canvas id="canvas"></canvas>
 </div>
-<div id="about"
-     style="position: fixed; bottom: 0; right: 0; padding: 5px; font-size: 10pt; text-align: right; background: #222222; border: 1px solid #111111">
+<div id="about">
     <button onclick="hideAbout()">hide this info</button>
     <br>
     Numbers supplied by <a href="https://socialblade.com/">socialblade.com</a>.<br>
@@ -89,18 +47,10 @@
     <a href="https://socialblade.com/youtube/c/tseriesmusic">https://socialblade.com/youtube/c/tseriesmusic</a><br>
     I don't profit off of this, so, please don't sue me, Tesla.<br>
     I used <a href="https://momentjs.com/">moment.js</a> and <a href="https://www.chartjs.org/">chart.js</a> to make the
-    charting possible.<br>
-    This code was made by me, although some parts are copy pasted from stackoverflow, mainly the formatting bits.
+    charting possible.
 </div>
 <script>
-    Number.prototype.toFixedDown = function (digits) {
-        var re = new RegExp("(\\d+\\.\\d{" + digits + "})(\\d)"),
-            m = this.toString().match(re);
-        return m ? parseFloat(m[1]) : this.valueOf();
-    };
-
     let oDiff = 0;
-    let oDate = new Date();
     let pewpewdies = 0;
     let tesla = 0;
     let diff = 0;
@@ -115,7 +65,6 @@
         if (this.readyState === 4 && this.status === 200) {
             oDiff += +this.responseText;
             if (+oDiff - +this.responseText !== 0) {
-                document.getElementById('oDiff').innerHTML = (Intl.NumberFormat().format(oDiff));
                 updateOutput();
             }
         }
@@ -128,15 +77,12 @@
         if (this.readyState === 4 && this.status === 200) {
             oDiff -= +this.responseText;
             if (+oDiff + +this.responseText !== 0) {
-                document.getElementById('oDiff').innerHTML = (Intl.NumberFormat().format(oDiff));
                 updateOutput();
             }
         }
     };
     xhttp2.open("GET", "https://bastet.socialblade.com/youtube/lookup?query=UCq-Fj5jknLsUf-MWSy4_brA", true);
     xhttp2.send();
-
-    document.getElementById('now').innerHTML = getFormattedString(new Date());
 
     getPew();
     getTesla();
@@ -146,9 +92,11 @@
         getTesla();
     }, 30000);
 
-    setInterval(() => {
-        updateOutput();
-    }, 30000);
+    setTimeout(() => {
+        setInterval(() => {
+            updateOutput();
+        }, 30000);
+    }, 3000);
 
     function getPew() {
         if (!pewrequestOngoing) {
@@ -183,67 +131,14 @@
     function updateOutput() {
         if (pewpewdies > 0 && tesla > 0) {
             diff = pewpewdies - tesla;
-            document.getElementById('pewpewdies').innerHTML = Intl.NumberFormat().format(pewpewdies);
-            document.getElementById('tesla').innerHTML = Intl.NumberFormat().format(tesla);
-            document.getElementById('diff').innerHTML = Intl.NumberFormat().format(diff);
-            document.getElementById('diffDiff').innerHTML = Intl.NumberFormat().format(diff - oDiff);
-            document.getElementById('time').innerHTML = timeDiff();
             document.title = Intl.NumberFormat().format(diff);
             updateGraph();
         }
     }
 
-    function timeDiff() {
-        let diff = new Date().getTime() - oDate.getTime();
-        if (diff < 60000) {
-            let s = (diff / 1000).toFixedDown(0);
-            if (s < 10) {
-                s = '0' + s;
-            }
-            return s + ' sec';
-        } else if (diff < 3600000) {
-            let m = (diff / 60000).toFixedDown(0);
-            if (m < 10) {
-                m = '0' + m;
-            }
-            let s = ((diff % 60000) / 1000).toFixedDown(0);
-            if (s < 10) {
-                s = '0' + s;
-            }
-            return m + ' min ' + s + ' sec';
-        } else if (diff < 86400000) {
-            let h = (diff / 3600000).toFixedDown(0);
-            if (h < 10) {
-                h = '0' + h;
-            }
-            let m = ((diff % 3600000) / 60000).toFixedDown(0);
-            if (m < 10) {
-                m = '0' + m;
-            }
-            return h + ' h ' + m + ' min';
-        } else {
-            let d = (diff / 86400000).toFixedDown(0);
-            let h = ((diff % 86400000) / 3600000).toFixedDown(0);
-            if (h < 10) {
-                h = '0' + h;
-            }
-            return d + ' d ' + h + ' h';
-        }
-
-    }
-
-    function getFormattedString(d) {
-        var yyyy = d.getFullYear();
-        var mm = d.getMonth() < 9 ? "0" + (d.getMonth() + 1) : (d.getMonth() + 1);
-        var dd = d.getDate() < 10 ? "0" + d.getDate() : d.getDate();
-        var hh = d.getHours() < 10 ? "0" + d.getHours() : d.getHours();
-        var min = d.getMinutes() < 10 ? "0" + d.getMinutes() : d.getMinutes();
-        var ss = d.getSeconds() < 10 ? "0" + d.getSeconds() : d.getSeconds();
-        return yyyy + '-' + mm + '-' + dd + ' ' + hh + ':' + min + ':' + ss;
-    }
-
     let hideAbout = function () {
         document.getElementById('about').style.display = 'none';
+        localStorage.setItem('hideAbout', 'true');
     };
 
     function updateGraph() {
@@ -324,6 +219,9 @@
     window.onload = function () {
         var ctx = document.getElementById('canvas').getContext('2d');
         window.myLine = new Chart(ctx, config);
+        if(localStorage.getItem('hideAbout') === 'true') {
+            hideAbout();
+        }
     };
 </script>
 </body>
