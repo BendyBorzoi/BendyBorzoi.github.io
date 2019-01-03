@@ -253,7 +253,7 @@
 
             config.data.datasets.forEach(function (dataset) {
                 dataset.data.push({x: time, y: diff});
-                dataset.label = pewpewdies + ' vs ' + tesla;
+                dataset.label = Intl.NumberFormat().format(pewpewdies) + ' vs ' + Intl.NumberFormat().format(tesla);
                 xData.push(time);
                 yData.push(diff);
                 localStorage.setItem('xData', xData);
@@ -275,7 +275,7 @@
         data: {
             labels: [],
             datasets: [{
-                label: pewpewdies + ' vs ' + tesla,
+                label: 'getting data, please wait...',
                 backgroundColor: window.chartColors.red,
                 borderColor: window.chartColors.red,
                 data: getLocalData() || [],
