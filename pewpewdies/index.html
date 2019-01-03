@@ -44,7 +44,7 @@
 </head>
 <body>
 <div id="main">
-    <table style="position: absolute">
+    <table style="position: absolute; display: none">
         <thead>
         <tr>
             <th></th>
@@ -80,14 +80,16 @@
     </table>
     <canvas id="canvas"></canvas>
 </div>
-<div id="about" style="position: fixed; bottom: 0; right: 0; padding: 5px; font-size: 10pt; text-align: right; background: #222222; border: 1px solid #111111">
+<div id="about"
+     style="position: fixed; bottom: 0; right: 0; padding: 5px; font-size: 10pt; text-align: right; background: #222222; border: 1px solid #111111">
     <button onclick="hideAbout()">hide this info</button>
     <br>
     Numbers supplied by <a href="https://socialblade.com/">socialblade.com</a>.<br>
     <a href="https://socialblade.com/youtube/c/pewdiepie">https://socialblade.com/youtube/c/pewdiepie</a><br>
     <a href="https://socialblade.com/youtube/c/tseriesmusic">https://socialblade.com/youtube/c/tseriesmusic</a><br>
     I don't profit off of this, so, please don't sue me, Tesla.<br>
-    I used <a href="https://momentjs.com/">moment.js</a> and <a href="https://www.chartjs.org/">chart.js</a> to make the charting possible.<br>
+    I used <a href="https://momentjs.com/">moment.js</a> and <a href="https://www.chartjs.org/">chart.js</a> to make the
+    charting possible.<br>
     This code was made by me, although some parts are copy pasted from stackoverflow, mainly the formatting bits.
 </div>
 <script>
@@ -142,11 +144,11 @@
     setInterval(() => {
         getPew();
         getTesla();
-    }, 5000);
+    }, 30000);
 
     setInterval(() => {
         updateOutput();
-    }, 5000);
+    }, 30000);
 
     function getPew() {
         if (!pewrequestOngoing) {
@@ -251,6 +253,7 @@
 
             config.data.datasets.forEach(function (dataset) {
                 dataset.data.push({x: time, y: diff});
+                dataset.label = pewpewdies + ' vs ' + tesla;
                 xData.push(time);
                 yData.push(diff);
                 localStorage.setItem('xData', xData);
@@ -272,7 +275,7 @@
         data: {
             labels: [],
             datasets: [{
-                label: 'P vs T',
+                label: pewpewdies + ' vs ' + tesla,
                 backgroundColor: window.chartColors.red,
                 borderColor: window.chartColors.red,
                 data: getLocalData() || [],
