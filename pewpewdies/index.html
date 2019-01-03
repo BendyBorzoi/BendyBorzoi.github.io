@@ -148,7 +148,8 @@
 
             config.data.datasets.forEach(function (dataset) {
                 dataset.data.push({x: time, y: diff});
-                dataset.label = Intl.NumberFormat().format(pewpewdies) + ' vs ' + Intl.NumberFormat().format(tesla);
+                config.options.scales.xAxes[0].scaleLabel.labelString =
+                    'Time (' + Intl.NumberFormat().format(pewpewdies) + ' - ' + Intl.NumberFormat().format(tesla) + ' = ' + Intl.NumberFormat().format(diff) + ')';
                 xData.push(time);
                 yData.push(diff);
                 localStorage.setItem('xData', xData);
@@ -170,7 +171,7 @@
         data: {
             labels: [],
             datasets: [{
-                label: 'getting data, please wait...',
+                label: 'P vs T',
                 backgroundColor: window.chartColors.red,
                 borderColor: window.chartColors.red,
                 data: getLocalData() || [],
@@ -202,7 +203,7 @@
                     display: true,
                     scaleLabel: {
                         display: true,
-                        labelString: 'Time'
+                        labelString: 'Time (currently getting data, please wait...)'
                     }
                 }],
                 yAxes: [{
