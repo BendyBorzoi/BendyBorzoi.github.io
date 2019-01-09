@@ -44,7 +44,7 @@
     var vm = new TimerViewModel();
     ko.applyBindings(vm, document.getElementById("fullDoc"));
     var arr = location.hash.split(';');
-    if (arr.length) {
+    if (arr.length > 1) {
         vm.timerInputMinutes(arr[1]);
         vm.timerMsg(arr[2]);
         vm.init1();
