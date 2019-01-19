@@ -4,25 +4,9 @@
     <meta charset="UTF-8">
     <title>Bihsc Lasagna</title>
     <link rel="icon" type="image/png" href="Untitled-11.png"/>
-    <script type="text/javascript" src="Chart.bundle.js"></script>
-    <script type="text/javascript" src="utils.js"></script>
-    <script type="text/javascript" src="moment.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.bundle.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.23.0/moment.min.js"></script>
     <style>
-        body {
-            font-size: 27pt;
-            color: #cccccc;
-            background: #222222;
-        }
-
-        #main {
-            height: 99%;
-            width: 99%;
-            position: absolute;
-            /*top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);*/
-        }
-
         #about {
             position: fixed;
             bottom: 0;
@@ -36,9 +20,7 @@
     </style>
 </head>
 <body>
-<div id="main">
-    <canvas id="canvas"></canvas>
-</div>
+<canvas id="canvas"></canvas>
 <div id="about" style="display: none">
     <button onclick="hideAbout()">hide this info</button>
     <br>
@@ -50,39 +32,11 @@
     charting possible.
 </div>
 <script>
-    let oDiff = 0;
     let pewpewdies = 0;
     let tesla = 0;
     let diff = 0;
     let xData = localStorage.getItem('xData') ? localStorage.getItem('xData').split(',') : [];
     let yData = localStorage.getItem('yData') ? localStorage.getItem('yData').split(',') : [];
-
-    let pewrequestOngoing = false;
-    let tesrequestOngoing = false;
-
-    let xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function () {
-        if (this.readyState === 4 && this.status === 200) {
-            oDiff += +this.responseText;
-            if (+oDiff - +this.responseText !== 0) {
-                updateOutput();
-            }
-        }
-    };
-    xhttp.open("GET", "https://bastet.socialblade.com/youtube/lookup?query=UC-lHJZR3Gqxm24_Vd_AJ5Yw", true);
-    xhttp.send();
-
-    let xhttp2 = new XMLHttpRequest();
-    xhttp2.onreadystatechange = function () {
-        if (this.readyState === 4 && this.status === 200) {
-            oDiff -= +this.responseText;
-            if (+oDiff + +this.responseText !== 0) {
-                updateOutput();
-            }
-        }
-    };
-    xhttp2.open("GET", "https://bastet.socialblade.com/youtube/lookup?query=UCq-Fj5jknLsUf-MWSy4_brA", true);
-    xhttp2.send();
 
     getPew();
     getTesla();
@@ -93,39 +47,32 @@
     }, 30000);
 
     setTimeout(() => {
+        updateOutput();
         setInterval(() => {
             updateOutput();
         }, 30000);
     }, 3000);
 
     function getPew() {
-        if (!pewrequestOngoing) {
-            pewrequestOngoing = true;
-            let xhttp = new XMLHttpRequest();
-            xhttp.onreadystatechange = function () {
-                if (this.readyState === 4 && this.status === 200) {
-                    pewpewdies = +this.responseText;
-                }
-                pewrequestOngoing = false;
-            };
-            xhttp.open("GET", "https://bastet.socialblade.com/youtube/lookup?query=UC-lHJZR3Gqxm24_Vd_AJ5Yw", true);
-            xhttp.send();
-        }
+        let xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+            if (this.readyState === 4 && this.status === 200) {
+                pewpewdies = +this.responseText;
+            }
+        };
+        xhttp.open("GET", "https://bastet.socialblade.com/youtube/lookup?query=UC-lHJZR3Gqxm24_Vd_AJ5Yw", true);
+        xhttp.send();
     }
 
     function getTesla() {
-        if (!tesrequestOngoing) {
-            tesrequestOngoing = true;
-            let xhttp = new XMLHttpRequest();
-            xhttp.onreadystatechange = function () {
-                if (this.readyState === 4 && this.status === 200) {
-                    tesla = +this.responseText;
-                }
-                tesrequestOngoing = false;
-            };
-            xhttp.open("GET", "https://bastet.socialblade.com/youtube/lookup?query=UCq-Fj5jknLsUf-MWSy4_brA", true);
-            xhttp.send();
-        }
+        let xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+            if (this.readyState === 4 && this.status === 200) {
+                tesla = +this.responseText;
+            }
+        };
+        xhttp.open("GET", "https://bastet.socialblade.com/youtube/lookup?query=UCq-Fj5jknLsUf-MWSy4_brA", true);
+        xhttp.send();
     }
 
     function updateOutput() {
@@ -148,8 +95,9 @@
 
             config.data.datasets.forEach(function (dataset) {
                 dataset.data.push({x: time, y: diff});
-                config.options.scales.xAxes[0].scaleLabel.labelString =
-                    'Time (' + Intl.NumberFormat().format(pewpewdies) + ' - ' + Intl.NumberFormat().format(tesla) + ' = ' + Intl.NumberFormat().format(diff) + ')';
+                config.options.title.text = 'Poods at ' + Intl.NumberFormat().format(pewpewdies) +
+                    ' - Tesla at ' + Intl.NumberFormat().format(tesla) +
+                    ' = ' + Intl.NumberFormat().format(diff) + ' more subs';
                 xData.push(time);
                 yData.push(diff);
                 localStorage.setItem('xData', xData);
@@ -172,17 +120,17 @@
             labels: [],
             datasets: [{
                 label: 'P vs T',
-                backgroundColor: window.chartColors.red,
-                borderColor: window.chartColors.red,
-                data: getLocalData() || [],
+                backgroundColor: 'rgba(255, 99, 132, 1)',
+                borderColor: 'rgba(255, 99, 132, 1)',
+                data: getLocalData(),
                 fill: false,
             }]
         },
         options: {
             responsive: true,
             title: {
-                display: false,
-                text: ''
+                display: true,
+                text: 'retrieving data...'
             },
             tooltips: {
                 mode: 'index',
@@ -196,14 +144,12 @@
                 xAxes: [{
                     type: 'time',
                     time: {
-                        // format: timeFormat,
-                        // round: 'day'
-                        // tooltipFormat: 'll HH:mm'
+                        unit: 'day'
                     },
                     display: true,
                     scaleLabel: {
                         display: true,
-                        labelString: 'Time (currently getting data, please wait...)'
+                        labelString: 'Time'
                     }
                 }],
                 yAxes: [{
@@ -218,7 +164,7 @@
     };
 
     window.onload = function () {
-        var ctx = document.getElementById('canvas').getContext('2d');
+        let ctx = document.getElementById('canvas').getContext('2d');
         window.myLine = new Chart(ctx, config);
         if (localStorage.getItem('hideAbout') !== 'true') {
             document.getElementById('about').style.display = '';
