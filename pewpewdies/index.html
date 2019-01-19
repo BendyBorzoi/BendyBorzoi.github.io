@@ -11,16 +11,31 @@
             position: fixed;
             bottom: 0;
             right: 0;
+            background: white;
             padding: 5px;
             font-size: 10pt;
             text-align: right;
-            background: #222222;
-            border: 1px solid #111111;
+            border: 1px solid lightgray;
+        }
+        #controls {
+            position: fixed;
+            bottom: 2px;
+            left: 2px;
+            background: white;
+            padding: 5px;
+            font-size: 10pt;
+            text-align: right;
+            border: 1px solid lightgray;
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
 <canvas id="canvas"></canvas>
+<div id="controls">
+    <button onclick="toggleOnlyRecent()" id="togR">show only recent data</button>
+    <button onclick="reset()">reset</button>
+</div>
 <div id="about" style="display: none">
     <button onclick="hideAbout()">hide this info</button>
     <br>
@@ -37,6 +52,7 @@
     let diff = 0;
     let xData = localStorage.getItem('xData') ? localStorage.getItem('xData').split(',') : [];
     let yData = localStorage.getItem('yData') ? localStorage.getItem('yData').split(',') : [];
+    let onlyRecent = false;
 
     getPew();
     getTesla();
@@ -88,6 +104,36 @@
         localStorage.setItem('hideAbout', 'true');
     };
 
+    let reset = function () {
+        if (confirm('This permanently deletes all data. You sure?')) {
+            xData = [];
+            yData = [];
+            localStorage.setItem('xData', xData);
+            localStorage.setItem('yData', yData);
+            config.data.datasets[0].data = [];
+            window.myLine.update();
+        }
+    };
+
+    let toggleOnlyRecent = function () {
+        onlyRecent = !onlyRecent;
+        if (onlyRecent) {
+            let didi = [];
+            config.data.datasets[0].data.forEach(function (data) {
+                if (data.x.unix() + 86400 > moment().unix()) {
+                    didi.push(data);
+                }
+            });
+            config.data.datasets[0].data = didi;
+            window.myLine.update();
+            document.getElementById('togR').innerHTML = 'show all data';
+        } else {
+            config.data.datasets[0].data = getLocalData();
+            window.myLine.update();
+            document.getElementById('togR').innerHTML = 'show only recent data';
+        }
+    };
+
     function updateGraph() {
         if (window.myLine) {
             let time = moment();
@@ -98,7 +144,7 @@
                 config.options.title.text = 'Poods at ' + Intl.NumberFormat().format(pewpewdies) +
                     ' - Tesla at ' + Intl.NumberFormat().format(tesla) +
                     ' = ' + Intl.NumberFormat().format(diff) + ' more subs';
-                xData.push(time);
+                xData.push(time.format());
                 yData.push(diff);
                 localStorage.setItem('xData', xData);
                 localStorage.setItem('yData', yData);
@@ -110,7 +156,7 @@
 
     function getLocalData() {
         let d = [];
-        xData.forEach((val, key) => d.push({x: val, y: yData[key]}));
+        xData.forEach((val, key) => d.push({x: moment(val), y: yData[key]}));
         return d;
     }
 
