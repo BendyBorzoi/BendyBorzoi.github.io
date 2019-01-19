@@ -40,6 +40,15 @@
     <div><span data-bind="text: timerString"></span></div>
     <div style="font-size: 3vw"><span data-bind="text: timerText"></span></div>
 </div>
-<script type="text/javascript">ko.applyBindings(new TimerViewModel(), document.getElementById("fullDoc"));</script>
+<script type="text/javascript">
+    var vm = new TimerViewModel();
+    ko.applyBindings(vm, document.getElementById("fullDoc"));
+    var arr = location.hash.split(';');
+    if (arr.length > 1) {
+        vm.timerInputMinutes(arr[1]);
+        vm.timerMsg(arr[2]);
+        vm.init1();
+    }
+</script>
 </body>
 </html>
