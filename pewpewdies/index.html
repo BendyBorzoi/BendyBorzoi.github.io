@@ -202,17 +202,23 @@
             config.data.datasets.forEach(function (dataset) {
                 let recentChange = 0;
                 let recentChangeString = '';
+                let recentChangeTime = 0;
                 dataset.data.push({x: time, y: diff});
                 if (dataset.data.length > 0) {
                     recentChange = dataset.data[dataset.data.length - 1].y -
                         dataset.data[dataset.data.length - Math.min(dataset.data.length, 6)].y;
-                    console.log(recentChange);
+                    recentChangeTime =
+                        dataset.data[dataset.data.length - 1].x.diff(
+                            dataset.data[dataset.data.length - Math.min(dataset.data.length, 6)].x
+                        )
+                    ;
                     if (recentChange > 0) {
                         recentChangeString = '+' + recentChange;
                     } else {
                         recentChangeString = recentChange;
                     }
-                    recentChangeString += ' since last ' + Math.min(dataset.data.length, 5) + ' refreshes';
+                    recentChangeString += ' since last ' + Math.min(dataset.data.length, 5) + ' refreshes (' +
+                        Intl.NumberFormat().format((recentChange / recentChangeTime) * 60000) + ' per minute)';
                 }
                 config.options.title.text = 'Poods at ' + Intl.NumberFormat().format(pewpewdies) +
                     ' - Tesla at ' + Intl.NumberFormat().format(tesla) +
