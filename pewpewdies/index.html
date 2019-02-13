@@ -121,8 +121,7 @@
             console.log("bad data from socialblade");
             console.log(pewpewdies);
             console.log(tesla);
-            config.options.title.text = "<" + moment().hours() + ':' + moment().minutes() +
-                ':' + moment().seconds() + "> Socialblade data error, retrying...";
+            config.options.title.text = "<" + moment().format("H:mm:ss") + "> Socialblade data error, retrying...";
             window.myLine.update();
         }
     }
