@@ -115,6 +115,13 @@
             document.title = Intl.NumberFormat().format(diff);
             lastRefresh = moment().unix();
             updateGraph();
+        } else {
+            console.log("bad data from socialblade");
+            console.log(pewpewdies);
+            console.log(tesla);
+            config.options.title.text = "<" + moment().hours() + ':' + moment().minutes() +
+                ':' + moment().seconds() + "> Socialblade data error, retrying...";
+            window.myLine.update();
         }
     }
 
