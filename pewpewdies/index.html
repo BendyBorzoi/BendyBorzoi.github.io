@@ -17,6 +17,7 @@
             text-align: right;
             border: 1px solid lightgray;
         }
+
         #controls {
             position: fixed;
             bottom: 2px;
@@ -42,8 +43,9 @@
         <button onclick="reset()">reset</button>
         <br>
         <label>Refresh every <input id="intL" value="30" type="number" min="3" max="300" step="1"> seconds</label>
-        <button onclick="changeInterval()">apply</button> (<span id="refreshTimer"></span>s)
+        <button onclick="changeInterval()">apply</button>
     </div>
+    (<span id="refreshTimer"></span>s)
 </div>
 <div id="about" style="display: none">
     <button onclick="hideAbout()">hide this info</button>
