@@ -114,7 +114,6 @@
     function updateOutput() {
         if (pewpewdies > 0 && tesla > 0) {
             diff = pewpewdies - tesla;
-            document.title = Intl.NumberFormat().format(diff);
             lastRefresh = moment().unix();
             updateGraph();
         } else {
@@ -243,11 +242,9 @@
             let fuckedDate = moment();
             let a = (recentChange / recentChangeTime) * 60000;
 
-            if (a < 0) {
-                console.log(fuckedDate.add(diff / -a, 'minutes'));
-            } else {
-                console.log("all good");
-            }
+            document.title = Intl.NumberFormat().format(diff) +
+                ' (' + Math.round((recentChange / recentChangeTime) * 60000) + 's/m)' + (recentChange < 0 ? ' ('
+                + Math.round(diff / -a) + 'm)' : '');
 
             window.myLine.update();
         }
