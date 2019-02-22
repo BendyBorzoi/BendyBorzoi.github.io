@@ -207,10 +207,10 @@
         if (window.myLine) {
             let time = moment();
             config.data.labels.push(time);
+            let recentChange = 0;
+            let recentChangeString = '(';
+            let recentChangeTime = 0;
             config.data.datasets.forEach(function (dataset) {
-                let recentChange = 0;
-                let recentChangeString = '(';
-                let recentChangeTime = 0;
                 dataset.data.push({x: time, y: diff});
                 if (dataset.data.length > 0) {
                     recentChange = dataset.data[dataset.data.length - 1].y -
@@ -239,6 +239,14 @@
 
             if (onlyRecent) {
                 restrictTimeFrame(document.getElementById('hours').value);
+            }
+            let fuckedDate = moment();
+            let a = (recentChange / recentChangeTime) * 60000;
+
+            if (a < 0) {
+                console.log(fuckedDate.add(diff / -a, 'minutes'));
+            } else {
+                console.log("all good");
             }
 
             window.myLine.update();
