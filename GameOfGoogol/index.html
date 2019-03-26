@@ -30,7 +30,7 @@
     Number of initial unknowns: <span data-bind="text: numberOfUnknowns"></span>;
     Number of revealed integers: <span data-bind="text: revealedCount"></span><br>
     <span data-bind="text: known"></span><br>
-    <button data-bind="click: reveal">Reveal the Next Number</button>
+    <button data-bind="click: reveal, enable: revealedCount() < unknowns().length">Reveal the Next Number</button>
     <br>
     <button data-bind="click: choose, enable: revealedCount">Choose This Number</button>
 </div>
