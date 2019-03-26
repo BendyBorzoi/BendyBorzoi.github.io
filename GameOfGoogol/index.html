@@ -6,15 +6,24 @@
     <script src="knockout-3.5.0.js"></script>
 </head>
 <body>
-Da Rules:<br>
-You are given a set of unknown integers, values ranging from 0 to 10^100. You choose how many unknowns there are.<br>
-The values are randomly generated and shuffled.<br>
-You can choose to reveal an integer and then can choose to either reveal another or choose the revealed number.<br>
-If you reveal another number, you can only choose the newly revealed number.<br>
-Once you have chosen, the chosen number is then compared to the set of numbers.<br>
-If you have chosen the largest number in the set, you win, else, you lose.<br><br>
+<div data-bind="visible: showRules">
+    Da Rules:<br>
+    You are given a set of unknown integers, values ranging from 0 to 10^100. You choose how many unknowns there
+    are.<br>
+    The values are randomly generated and shuffled.<br>
+    You can choose to reveal an integer and then can choose to either reveal another or choose the revealed number.<br>
+    If you reveal another number, you can only choose the newly revealed number.<br>
+    Once you have chosen, the chosen number is then compared to the set of numbers.<br>
+    If you have chosen the largest number in the set, you win, else, you lose.<br>
+    My inspiration and a great video on the Game of Googol:
+    <a href="https://www.youtube.com/watch?v=OeJobV4jJG0" target="_blank"
+    >https://www.youtube.com/watch?v=OeJobV4jJG0</a><br>
+    <button data-bind="click: hideRules">Hide rules</button>
+    <br><br>
+</div>
 <div data-bind="hidden: gameStarted() || gameEnded()">
-    <label>Number of unknowns: <input type="number" min="2" max="1000" step="1" data-bind="value: numberOfUnknowns"></label>
+    <label>Number of unknowns: <input type="number" min="2" max="1000" step="1"
+                                      data-bind="value: numberOfUnknowns"></label>
     <button data-bind="click: startGame">Start</button>
 </div>
 <div data-bind="visible: gameStarted">
@@ -38,6 +47,10 @@ If you have chosen the largest number in the set, you win, else, you lose.<br><b
 <script>
     let VM = function () {
         let self = this;
+        self.showRules = ko.observable(true);
+        self.hideRules = function () {
+            self.showRules(false);
+        };
         self.unknowns = ko.observableArray();
         self.known = ko.observableArray();
         self.revealedCount = ko.observable(0);
