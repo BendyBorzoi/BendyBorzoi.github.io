@@ -6,8 +6,15 @@
     <script src="knockout-3.5.0.js"></script>
 </head>
 <body>
+Da Rules:<br>
+You are given a set of unknown integers, values ranging from 0 to 10^100.<br>
+The values are randomly generated and shuffled.<br>
+You can choose to reveal an integer and then can choose to either reveal another or choose the revealed number.<br>
+If you reveal another number, you can only choose the newly revealed number.<br>
+Once you have chosen, the chosen number is then compared to the set of numbers.<br>
+If you have chosen the largest number in the set, you win, else, you lose.<br><br>
 <div data-bind="hidden: gameStarted() || gameEnded()">
-    <input type="number" min="2" max="1000" step="1" data-bind="value: numberOfUnknowns">
+    <label>Number of unknowns: <input type="number" min="2" max="1000" step="1" data-bind="value: numberOfUnknowns"></label>
     <button data-bind="click: startGame">Start</button>
 </div>
 <div data-bind="visible: gameStarted">
