@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Game of Googol</title>
+    <script src="knockout-3.5.0.js"></script>
+</head>
+<body>
+<div data-bind="hidden: gameStarted() || gameEnded()">
+    <input type="number" min="2" max="1000" step="1" data-bind="value: numberOfUnknowns">
+    <button data-bind="click: startGame">Start</button>
+</div>
+<div data-bind="visible: gameStarted">
+    Number of initial unknowns: <span data-bind="text: numberOfUnknowns"></span>;
+    Number of revealed integers: <span data-bind="text: revealedCount"></span><br>
+    <span data-bind="text: known"></span><br>
+    <button data-bind="click: reveal">Reveal the Next Number</button>
+    <br>
+    <button data-bind="click: choose, enable: revealedCount">Choose This Number</button>
+</div>
+<div data-bind="visible: gameEnded">
+    <span data-bind="text: outcome"></span><br>
+    Number of initial unknowns: <span data-bind="text: numberOfUnknowns"></span>;
+    Number of revealed integers: <span data-bind="text: revealedCount"></span><br>
+    Revealed integers: <span data-bind="text: known"></span><br>
+    Chosen Integer: <span data-bind="text: chosen"></span><br>
+    Largest Integer: <span data-bind="text: largestNumber"></span><br>
+    Unknowns: <span data-bind="text: unknowns"></span><br>
+    <button data-bind="click: reset">Reset game</button>
+</div>
+<script>
+    let VM = function () {
+        let self = this;
+        self.unknowns = ko.observableArray();
+        self.known = ko.observableArray();
+        self.revealedCount = ko.observable(0);
+        self.numberOfUnknowns = ko.observable(10);
+        self.chosen = ko.observable(0);
+        self.largestNumber = ko.observable(0);
+        self.gameStarted = ko.observable(false);
+        self.gameEnded = ko.observable(false);
+        self.outcome = ko.observable('');
+        self.startGame = function () {
+            let a = self.numberOfUnknowns();
+            self.gameStarted(true);
+            while (a > 0) {
+                let b = Math.round(Math.random() * 99);
+                b = Math.round(Math.random() * 9) * Math.pow(10, b);
+                self.unknowns.push(b);
+                a--;
+            }
+        };
+        self.reveal = function () {
+            self.known.push(self.unknowns()[self.revealedCount()]);
+            self.revealedCount(self.revealedCount() + 1);
+        };
+        self.choose = function () {
+            let chosen = self.known()[self.revealedCount() - 1];
+            self.chosen(chosen);
+            let arr = self.unknowns();
+            arr.sort((a, b) => b - a);
+            if (chosen === arr[0]) {
+                self.outcome('You won!');
+            } else {
+                self.outcome('You lost!');
+            }
+            self.largestNumber(arr[0]);
+            self.gameStarted(false);
+            self.gameEnded(true);
+        };
+        self.reset = function () {
+            self.unknowns([]);
+            self.known([]);
+            self.revealedCount(0);
+            self.numberOfUnknowns(10);
+            self.largestNumber(0);
+            self.gameStarted(false);
+            self.gameEnded(false);
+            self.outcome('');
+        }
+    }, vm = new VM();
+    ko.applyBindings(vm);
+</script>
+</body>
+</html>
