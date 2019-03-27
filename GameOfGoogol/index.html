@@ -4,47 +4,161 @@
     <meta charset="UTF-8">
     <title>Game of Googol</title>
     <script src="knockout-3.5.0.js"></script>
+    <link rel="stylesheet" href="bootstrap-4.3.1-dist/css/bootstrap.min.css">
+    <style>
+        .arrDisplay {
+            margin: 10px 0;
+        }
+
+        .navbar-brand {
+            pointer-events: none;
+        }
+
+        html {
+            position: relative;
+            min-height: 100%;
+        }
+
+        body {
+            margin-bottom: 60px;
+        }
+
+        .footer {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 60px;
+            line-height: 60px;
+            background-color: #f5f5f5;
+        }
+
+        main {
+            padding: 60px 0;
+        }
+    </style>
 </head>
 <body>
-<div data-bind="visible: showRules">
-    Da Rules:<br>
-    You are given a set of unknown integers, values ranging from 0 to 10^100. You choose how many unknowns there
-    are.<br>
-    The values are randomly generated and shuffled.<br>
-    You can choose to reveal an integer and then can choose to either reveal another or choose the revealed number.<br>
-    If you reveal another number, you can only choose the newly revealed number.<br>
-    Once you have chosen, the chosen number is then compared to the set of numbers.<br>
-    If you have chosen the largest number in the set, you win, else, you lose.<br>
-    My inspiration and a great video on the Game of Googol:
-    <a href="https://www.youtube.com/watch?v=OeJobV4jJG0" target="_blank"
-    >https://www.youtube.com/watch?v=OeJobV4jJG0</a><br>
-    <button data-bind="click: hideRules">Hide rules</button>
-    <br><br>
-</div>
-<div data-bind="hidden: gameStarted() || gameEnded()">
-    <label>Number of unknowns: <input type="number" min="2" max="1000" step="1"
-                                      data-bind="value: numberOfUnknowns"></label>
-    <button data-bind="click: startGame">Start</button>
-</div>
-<div data-bind="visible: gameStarted">
-    Number of initial unknowns: <span data-bind="text: numberOfUnknowns"></span>;
-    Number of revealed integers: <span data-bind="text: revealedCount"></span><br>
-    <span data-bind="text: known"></span><br>
-    <button data-bind="click: reveal, enable: revealedCount() < unknowns().length">Reveal the Next Number</button>
-    <br>
-    <button data-bind="click: choose, enable: revealedCount">Choose This Number</button>
-</div>
-<div data-bind="visible: gameEnded">
-    <span data-bind="text: outcome"></span><br>
-    Number of initial unknowns: <span data-bind="text: numberOfUnknowns"></span>;
-    Number of revealed integers: <span data-bind="text: revealedCount"></span><br>
-    Revealed integers: <span data-bind="text: known"></span><br>
-    Chosen Integer: <span data-bind="text: chosen"></span><br>
-    Largest Integer: <span data-bind="text: largestNumber"></span><br>
-    Unknowns: <span data-bind="text: unknowns"></span><br>
-    <button data-bind="click: reset">Reset game</button>
-</div>
+<header>
+    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+        <a class="navbar-brand" href="#">The Game of Googol</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse"
+                aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+        </div>
+    </nav>
+</header>
+<main>
+    <div class="container">
+        <div class="col-md-12">
+            <div data-bind="visible: showRules">
+                Da Rules:<br>
+                You are given a set of unknown integers, values ranging from 0 to 10^100. You choose how many unknowns
+                there
+                are.<br>
+                The values are (pseudo)randomly generated and shuffled.<br>
+                You can choose to reveal an integer and then can choose to either reveal another or choose the revealed
+                number.<br>
+                If you reveal another number, you can only choose the newly revealed number.<br>
+                Once you have chosen, the chosen number is then compared to the set of numbers.<br>
+                If you have chosen the largest number in the set, you win, else, you lose.<br>
+                My inspiration and a great video on the Game of Googol:
+                <a href="https://www.youtube.com/watch?v=OeJobV4jJG0" target="_blank"
+                >https://www.youtube.com/watch?v=OeJobV4jJG0</a><br>
+                <button data-bind="click: hideRules" class="btn btn-primary">Hide rules</button>
+                <br><br>
+            </div>
+            <div data-bind="hidden: gameStarted() || gameEnded()">
+                <label for="num">Number of unknowns:</label>
+                <div class="input-group col-md-3">
+                    <input type="number" min="2" max="1000" step="1"
+                           data-bind="value: numberOfUnknowns" class="form-control" id="num">
+                    <div class="input-group-append">
+                        <button data-bind="click: startGame" class="btn btn-primary">Start</button>
+                    </div>
+                </div>
+            </div>
+            <div data-bind="visible: gameStarted">
+                Number of initial unknowns: <span data-bind="text: numberOfUnknowns"></span>;
+                Number of revealed integers: <span data-bind="text: revealedCount"></span><br>
+                <span data-bind="html: knownPretty"></span><br><br>
+                <button data-bind="click: reveal, enable: revealedCount() < unknowns().length" class="btn btn-primary">
+                    Reveal the Next Number
+                </button>
+                <button data-bind="click: choose, enable: revealedCount" class="btn btn-primary">Choose This Number
+                </button>
+            </div>
+            <div data-bind="visible: gameEnded">
+                <h1 data-bind="text: outcome"></h1><br>
+                Number of initial unknowns: <span data-bind="text: numberOfUnknowns"></span>;
+                Number of revealed integers: <span data-bind="text: revealedCount"></span><br>
+                <div class="arrDisplay">Revealed integers:<br><span data-bind="html: knownPretty"></span><br></div>
+                Chosen Integer: <span data-bind="html: chosen"></span><br>
+                Largest Integer: <span data-bind="html: largestNumber"></span><br>
+                <div class="arrDisplay">Initial unknowns:<br><span data-bind="html: unknownsPretty"></span><br></div>
+                <br>
+                <button data-bind="click: reset" class="btn btn-primary">Reset game</button>
+            </div>
+        </div>
+    </div>
+</main>
+<footer class="footer">
+    <div class="container">
+        Won: <span data-bind="text: wonGames"></span>;
+        Lost: <span data-bind="text: lostGames"></span>;
+        <span data-bind="visible: wonGames() || lostGames()">Win rate: <span data-bind="text: winRate"></span></span>
+    </div>
+</footer>
 <script>
+    if (localStorage.getItem('wonGames') === null) {
+        localStorage.setItem('wonGames', "0");
+    }
+    if (localStorage.getItem('lostGames') === null) {
+        localStorage.setItem('lostGames', "0");
+    }
+
+    class NumGoo {
+        constructor() {
+            this.val = Math.random();
+            this.exp = Math.floor((Math.random() * 99) + 1);
+            if (Math.random() > 0.999999) {
+                this.val = 1;
+                this.exp = 100;
+            }
+            while (this.val < 0.1) {
+                this.val *= 10;
+            }
+        }
+
+        get abs() {
+            return this.val * Math.pow(10, this.exp);
+        }
+
+        get prettyVal() {
+            return (Math.floor(this.val * Math.pow(10, Math.min(5, this.exp)) + 1) /
+                (Math.pow(10, Math.min(5, this.exp) - 1))).toPrecision(5);
+        }
+
+        get prettyAbs() {
+            if (this.exp === 100) {
+                return 'Googol';
+            }
+            return '<span>' + this.prettyVal + '</span> &times; 10<sup><span>' + this.exp + '</span></sup>';
+        }
+    }
+
+    function displayArr(arr) {
+        let res = '';
+        for (let a of arr) {
+            res += a.prettyAbs;
+            if (arr.indexOf(a) !== arr.length - 1) {
+                res += ', ';
+            }
+        }
+        return '[ ' + res + ' ]';
+    }
+
     let VM = function () {
         let self = this;
         self.showRules = ko.observable(true);
@@ -60,13 +174,16 @@
         self.gameStarted = ko.observable(false);
         self.gameEnded = ko.observable(false);
         self.outcome = ko.observable('');
+        self.knownPretty = ko.pureComputed(() => displayArr(self.known()));
+        self.unknownsPretty = ko.pureComputed(() => displayArr(self.unknowns()));
+        self.wonGames = ko.observable(+localStorage.getItem('wonGames'));
+        self.lostGames = ko.observable(+localStorage.getItem('lostGames'));
+        self.winRate = ko.pureComputed(() => ((self.wonGames() / (self.wonGames() + self.lostGames())) * 100).toPrecision(4) + '%');
         self.startGame = function () {
             let a = self.numberOfUnknowns();
             self.gameStarted(true);
             while (a > 0) {
-                let b = Math.round(Math.random() * 99);
-                b = Math.round(Math.random() * 9) * Math.pow(10, b);
-                self.unknowns.push(b);
+                self.unknowns.push(new NumGoo());
                 a--;
             }
         };
@@ -76,15 +193,19 @@
         };
         self.choose = function () {
             let chosen = self.known()[self.revealedCount() - 1];
-            self.chosen(chosen);
+            self.chosen(chosen.prettyAbs);
             let arr = self.unknowns();
-            arr.sort((a, b) => b - a);
-            if (chosen === arr[0]) {
-                self.outcome('You won!');
+            arr.sort((a, b) => b.abs - a.abs);
+            if (chosen.abs === arr[0].abs) {
+                self.outcome('You won! 👍');
+                self.wonGames(self.wonGames() + 1);
+                localStorage.setItem('wonGames', '' + self.wonGames());
             } else {
-                self.outcome('You lost!');
+                self.outcome('You lost! 👎');
+                self.lostGames(self.lostGames() + 1);
+                localStorage.setItem('lostGames', '' + self.lostGames());
             }
-            self.largestNumber(arr[0]);
+            self.largestNumber(arr[0].prettyAbs);
             self.gameStarted(false);
             self.gameEnded(true);
         };
