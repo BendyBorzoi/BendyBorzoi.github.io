@@ -179,7 +179,7 @@
         self.unknownsPretty = ko.pureComputed(() => displayArr(self.unknowns()));
         self.wonGames = ko.observable(+localStorage.getItem('wonGames'));
         self.lostGames = ko.observable(+localStorage.getItem('lostGames'));
-        self.winRate = ko.pureComputed(() => ((self.wonGames() / (self.wonGames() + self.lostGames())) * 100).toPrecision(4) + '%');
+        self.winRate = ko.pureComputed(() => Math.round((self.wonGames() / (self.wonGames() + self.lostGames())) * 100) + '%');
         self.startGame = function () {
             let a = self.numberOfUnknowns();
             self.gameStarted(true);
