@@ -56,13 +56,14 @@
             <div data-bind="visible: showRules">
                 Da Rules:<br>
                 You are given a set of unknown integers, values ranging from 0 to 10^100. You choose how many unknowns
-                there
-                are.<br>
-                The values are (pseudo)randomly generated and shuffled.<br>
-                You can choose to reveal an integer and then can choose to either reveal another or choose the revealed
-                number.<br>
-                If you reveal another number, you can only choose the newly revealed number.<br>
-                Once you have chosen, the chosen number is then compared to the set of numbers.<br>
+                there are.<br>
+                The values are randomly generated and shuffled.<br>
+                At the start of the game, you reveal the first integer. You are then given a choice: Choose this number
+                or reveal another number.<br>
+                The same choice is given after every reveal. If you reveal another number, you can only choose the newly
+                revealed number.<br>
+                If you reveal all numbers in the set, you have to choose the last number you revealed. <br>
+                Once you have chosen, the chosen number is then compared to each number in the initial set.<br>
                 If you have chosen the largest number in the set, you win, else, you lose.<br>
                 My inspiration and a great video on the Game of Googol:
                 <a href="https://www.youtube.com/watch?v=OeJobV4jJG0" target="_blank"
@@ -106,9 +107,15 @@
 </main>
 <footer class="footer">
     <div class="container">
-        Won: <span data-bind="text: wonGames"></span>;
-        Lost: <span data-bind="text: lostGames"></span>;
-        <span data-bind="visible: wonGames() || lostGames()">Win rate: <span data-bind="text: winRate"></span></span>
+        <div>
+            Won: <span data-bind="text: wonGames"></span>;
+            Lost: <span data-bind="text: lostGames"></span>;
+            <span data-bind="visible: wonGames() || lostGames()">Win rate: <span
+                    data-bind="text: winRate"></span></span>
+        <div style="float: right">
+            <button data-bind="click: showRulesAgain, hidden: showRules" class="btn btn-outline-secondary">Show rules</button>
+        </div>
+    </div>
     </div>
 </footer>
 <script>
@@ -117,6 +124,9 @@
     }
     if (localStorage.getItem('lostGames') === null) {
         localStorage.setItem('lostGames', "0");
+    }
+    if (localStorage.getItem('showRules') === null) {
+        localStorage.setItem('showRules', "1");
     }
 
     class NumGoo {
@@ -127,8 +137,11 @@
                 this.val = 1;
                 this.exp = 100;
             }
-            while (this.val < 0.1) {
+            while (this.val < 0.1 && this.val) {
                 this.val *= 10;
+            }
+            if (this.exp < 17) {
+                this.val = Math.floor(this.val * Math.pow(10, this.exp)) / Math.pow(10, this.exp);
             }
         }
 
@@ -145,7 +158,8 @@
             if (this.exp === 100) {
                 return 'Googol';
             }
-            return '<span>' + this.prettyVal + '</span> &times; 10<sup><span>' + this.exp + '</span></sup>';
+            return '<span title="' + this.abs + '"><span>' + this.prettyVal
+                + '</span> &times; 10<sup><span>' + (this.exp - 1) + '</span></sup></span>';
         }
     }
 
@@ -162,9 +176,14 @@
 
     let VM = function () {
         let self = this;
-        self.showRules = ko.observable(true);
+        self.showRules = ko.observable(+localStorage.getItem('showRules'));
         self.hideRules = function () {
-            self.showRules(false);
+            self.showRules(0);
+            localStorage.setItem('showRules', "0");
+        };
+        self.showRulesAgain = function () {
+            self.showRules(1);
+            localStorage.setItem('showRules', "1");
         };
         self.unknowns = ko.observableArray();
         self.known = ko.observableArray();
@@ -179,7 +198,9 @@
         self.unknownsPretty = ko.pureComputed(() => displayArr(self.unknowns()));
         self.wonGames = ko.observable(+localStorage.getItem('wonGames'));
         self.lostGames = ko.observable(+localStorage.getItem('lostGames'));
-        self.winRate = ko.pureComputed(() => Math.round((self.wonGames() / (self.wonGames() + self.lostGames())) * 100) + '%');
+        self.winRate = ko.pureComputed(
+            () => Math.round((self.wonGames() / (self.wonGames() + self.lostGames())) * 100) + '%'
+        );
         self.startGame = function () {
             let a = self.numberOfUnknowns();
             self.gameStarted(true);
