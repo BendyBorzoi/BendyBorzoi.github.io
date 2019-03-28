@@ -254,7 +254,7 @@
         self.nextUpgrade = ko.pureComputed(() => self.char() === 'Pupper' ?  'Doggo' : 'Woofer');
         self.charPic = ko.pureComputed(() => 'normal' + self.char() + '.png');
         self.charPicHappy = ko.pureComputed(() => 'happy' + self.char() + '.png');
-        self.cost = ko.computed(() => self.char() === 'Pupper' ? 100000 : 100000000000);
+        self.cost = ko.computed(() => self.char() === 'Pupper' ? 1000000 : 100000000000000000);
         self.costPretty = ko.pureComputed(() => Intl.NumberFormat().format(self.cost()));
         self.goToGame = function () {
             self.playGame(true);
