@@ -150,7 +150,8 @@
                 The canine bank grants you a steady return of your investments while you hang out there and pet the
                 dogs. There are a lot of dogs there. Investing also enhances pets of the Rare <span
                     data-bind="text: char"></span>. You can also go into debt while playing the game of Googol for
-                as many Pupper Points as you hav invested.
+                as many Pupper Points as you have invested. While you are in debt, your return of investment is reduced
+                depending on the size of your debt.
                 <form data-bind="submit: doInvestment">
                     <div class="form-row">
                         <div class="col-md-12">
@@ -451,7 +452,7 @@
             self.invest(0);
         };
         self.giveReturn = function () {
-            self.accumulatedReturn(+self.accumulatedReturn() + (Math.log(1 + (0.00001 * self.invested()))));
+            self.accumulatedReturn(+self.accumulatedReturn() + (Math.log(1 + (0.00001 * (self.invested() + Math.min(self.rarePuppers(), 0))))));
             localStorage.setItem('accumulatedReturn', self.accumulatedReturn());
             document.getElementsByTagName('title')[0].innerHTML = 'Collect ' + Math.floor(self.accumulatedReturn());
         };
