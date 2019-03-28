@@ -47,11 +47,16 @@
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item"><a data-bind="click: goToGame, class: gameActive" href="#">Play the game</a></li>
+                <li class="nav-item"><a data-bind="click: goToPupper, class: gameInactive" href="#">Visit the rare
+                    pupper</a></li>
+            </ul>
         </div>
     </nav>
 </header>
 <main>
-    <div class="container">
+    <div class="container" data-bind="visible: playGame">
         <div class="col-md-12">
             <div data-bind="visible: showRules">
                 Da Rules:<br>
@@ -65,8 +70,9 @@
                 If you reveal all numbers in the set, you have to choose the last number you revealed. <br>
                 Once you have chosen, the chosen number is then compared to each number in the initial set.<br>
                 If you have chosen the largest number in the set, you win, else, you lose.<br>
-                You may wager rare Pepes, but be aware, their value is inconceivable. Winning the game will grant you
+                You may wager Pupper points, but be aware, their value is inconceivable. Winning the game will grant you
                 your wager fourfold.<br>
+                You may visit the rare Pupper and pet him to gain more Pupper Points.<br>
                 My inspiration and a great video on the Game of Googol:
                 <a href="https://www.youtube.com/watch?v=OeJobV4jJG0" target="_blank"
                 >https://www.youtube.com/watch?v=OeJobV4jJG0</a><br>
@@ -76,25 +82,25 @@
             <div data-bind="hidden: gameStarted() || gameEnded()">
                 <form class="form-inline" data-bind="submit: startGame">
                     <div class="form-row align-items-center">
-                        <div class="col">
+                        <div class="col-md-5">
                             <div class="input-group">
                                 <div class="input-group-prepend">
                                     <label for="num" class="input-group-text">Number of unknowns:</label>
                                 </div>
-                                <input type="number" min="2" max="1000" step="1"
+                                <input type="number" min="10" max="1000" step="1"
                                        data-bind="value: numberOfUnknowns" class="form-control" id="num">
                             </div>
                         </div>
-                        <div class="col">
+                        <div class="col-md-5">
                             <div class="input-group">
                                 <div class="input-group-prepend">
                                     <label for="wag" class="input-group-text">Your Wager:</label>
                                 </div>
                                 <input type="number" min="0" step="1"
-                                       data-bind="value: wager, attr: {max: rarePepes}" class="form-control" id="wag">
+                                       data-bind="value: wager, attr: {max: rarePuppers}" class="form-control" id="wag">
                             </div>
                         </div>
-                        <div class="col">
+                        <div class="col-md-2">
                             <button type="submit" class="btn btn-primary">Start</button>
                         </div>
                     </div>
@@ -125,6 +131,12 @@
             </div>
         </div>
     </div>
+    <div data-bind="hidden: playGame">
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); cursor: grab"
+             data-bind="event: {mouseover: pupperHover, mouseout: pupperNotHover}">
+            <img style="height: 400px" data-bind="click: generatePupper, attr: {src: pupperPic}" alt="Pupper">
+        </div>
+    </div>
 </main>
 <footer class="footer">
     <div class="container">
@@ -133,7 +145,7 @@
             Lost: <span data-bind="text: lostGames"></span>;
             <span data-bind="visible: wonGames() || lostGames()">Win rate: <span
                     data-bind="text: winRate"></span>;</span>
-            Rare Pepes: <span data-bind="text: rarePepes"></span>
+            Pupper Points: <span data-bind="text: rarePuppers"></span>
             <div style="float: right">
                 <button data-bind="click: showRulesAgain, hidden: showRules" class="btn btn-outline-secondary">Show
                     rules
@@ -152,8 +164,8 @@
     if (localStorage.getItem('showRules') === null) {
         localStorage.setItem('showRules', "1");
     }
-    if (localStorage.getItem('rarePepes') === null) {
-        localStorage.setItem('rarePepes', "100");
+    if (localStorage.getItem('rarePuppers') === null) {
+        localStorage.setItem('rarePuppers', "0");
     }
 
     class NumGoo {
@@ -225,16 +237,36 @@
         self.unknownsPretty = ko.pureComputed(() => displayArr(self.unknowns()));
         self.wonGames = ko.observable(+localStorage.getItem('wonGames'));
         self.lostGames = ko.observable(+localStorage.getItem('lostGames'));
-        self.rarePepes = ko.observable(+localStorage.getItem('rarePepes'));
+        self.rarePuppers = ko.observable(+localStorage.getItem('rarePuppers'));
+        self.playGame = ko.observable(true);
+        self.gameActive = ko.pureComputed(() => self.playGame() ? 'nav-link active' : 'nav-link');
+        self.gameInactive = ko.pureComputed(() => self.playGame() ? 'nav-link' : 'nav-link active');
+        self.goToGame = function () {
+            self.playGame(true);
+        };
+        self.goToPupper = function () {
+            self.playGame(false);
+        };
+        self.generatePupper = function () {
+            self.rarePuppers(self.rarePuppers() + 1);
+            localStorage.setItem('rarePuppers', self.rarePuppers());
+        };
         self.wager = ko.observable(0);
+        self.pupperPic = ko.observable('pupper.png');
+        self.pupperHover = function () {
+            self.pupperPic('happyPupper.png');
+        };
+        self.pupperNotHover = function () {
+            self.pupperPic('pupper.png');
+        };
         self.winRate = ko.pureComputed(
             () => Math.round((self.wonGames() / (self.wonGames() + self.lostGames())) * 100) + '%'
         );
         self.startGame = function () {
             let a = self.numberOfUnknowns();
             self.gameStarted(true);
-            self.rarePepes(self.rarePepes() - self.wager());
-            localStorage.setItem('rarePepes', self.rarePepes());
+            self.rarePuppers(self.rarePuppers() - self.wager());
+            localStorage.setItem('rarePuppers', self.rarePuppers());
             while (a > 0) {
                 self.unknowns.push(new NumGoo());
                 a--;
@@ -250,13 +282,13 @@
             let arr = self.unknowns();
             arr.sort((a, b) => b.abs - a.abs);
             if (chosen.abs === arr[0].abs) {
-                self.outcome('You won' + (self.wager() ? ' ' + (self.wager() * 4) + ' rare Pepes' : '') + '! 👍');
+                self.outcome('You won' + (self.wager() ? ' ' + (self.wager() * 4) + ' Pupper Points' : '') + '! 👍');
                 self.wonGames(self.wonGames() + 1);
                 localStorage.setItem('wonGames', '' + self.wonGames());
-                self.rarePepes(self.rarePepes() + (self.wager() * 4));
-                localStorage.setItem('rarePepes', self.rarePepes());
+                self.rarePuppers(self.rarePuppers() + (self.wager() * 4));
+                localStorage.setItem('rarePuppers', self.rarePuppers());
             } else {
-                self.outcome('You lost' + (self.wager() ? '. Your ' + self.wager() + ' rare Pepes now must die' : '') + '! 👎');
+                self.outcome('You lost! 👎');
                 self.lostGames(self.lostGames() + 1);
                 localStorage.setItem('lostGames', '' + self.lostGames());
             }
