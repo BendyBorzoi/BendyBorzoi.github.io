@@ -49,8 +49,8 @@
         <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item"><a data-bind="click: goToGame, class: gameActive" href="#">Play the game</a></li>
-                <li class="nav-item"><a data-bind="click: goToPupper, class: gameInactive" href="#">Visit the rare
-                    pupper</a></li>
+                <li class="nav-item"><a data-bind="click: goToPupper, class: gameInactive" href="#">Visit the Rare
+                    <span data-bind="text: char"></span></a></li>
             </ul>
         </div>
     </nav>
@@ -72,7 +72,7 @@
                 If you have chosen the largest number in the set, you win, else, you lose.<br>
                 You may wager Pupper points, but be aware, their value is inconceivable. Winning the game will grant you
                 your wager fourfold.<br>
-                You may visit the rare Pupper and pet him to gain more Pupper Points.<br>
+                You may visit the rare <span data-bind="text: char"></span> and pet him to gain more Pupper Points.<br>
                 My inspiration and a great video on the Game of Googol:
                 <a href="https://www.youtube.com/watch?v=OeJobV4jJG0" target="_blank"
                 >https://www.youtube.com/watch?v=OeJobV4jJG0</a><br>
@@ -132,9 +132,15 @@
         </div>
     </div>
     <div data-bind="hidden: playGame">
-        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); cursor: grab"
-             data-bind="event: {mouseover: pupperHover, mouseout: pupperNotHover}">
-            <img style="height: 400px" data-bind="click: generatePupper, attr: {src: pupperPic}" alt="Pupper">
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%)">
+            <div style="cursor: grab" data-bind="event: {mouseover: pupperHover, mouseout: pupperNotHover}">
+                <img style="height: 400px" data-bind="click: generatePupper, attr: {src: pupperPic}" alt="Pupper">
+            </div>
+            <br>
+            <button style="position: absolute; left: 50%; transform: translate(-50%,0)" class="btn btn-primary"
+            data-bind="visible: char() !== 'Woofer', enable: rarePuppers() >= cost(), click: upgrade">
+                Use <span data-bind="text: costPretty"></span> Pupper Points to summon the Rare <span data-bind="text: nextUpgrade"></span>
+            </button>
         </div>
     </div>
 </main>
@@ -145,10 +151,10 @@
             Lost: <span data-bind="text: lostGames"></span>;
             <span data-bind="visible: wonGames() || lostGames()">Win rate: <span
                     data-bind="text: winRate"></span>;</span>
-            Pupper Points: <span data-bind="text: rarePuppers"></span>
+            Pupper Points: <span data-bind="text: Intl.NumberFormat().format(rarePuppers())"></span>
             <div style="float: right">
-                <button data-bind="click: showRulesAgain, hidden: showRules" class="btn btn-outline-secondary">Show
-                    rules
+                <button data-bind="click: showRulesAgain, hidden: showRules" class="btn btn-outline-secondary">
+                    Show rules
                 </button>
             </div>
         </div>
@@ -166,6 +172,9 @@
     }
     if (localStorage.getItem('rarePuppers') === null) {
         localStorage.setItem('rarePuppers', "0");
+    }
+    if (localStorage.getItem('char') === null) {
+        localStorage.setItem('char', "Pupper");
     }
 
     class NumGoo {
@@ -241,6 +250,12 @@
         self.playGame = ko.observable(true);
         self.gameActive = ko.pureComputed(() => self.playGame() ? 'nav-link active' : 'nav-link');
         self.gameInactive = ko.pureComputed(() => self.playGame() ? 'nav-link' : 'nav-link active');
+        self.char = ko.observable(localStorage.getItem('char'));
+        self.nextUpgrade = ko.pureComputed(() => self.char() === 'Pupper' ?  'Doggo' : 'Woofer');
+        self.charPic = ko.pureComputed(() => 'normal' + self.char() + '.png');
+        self.charPicHappy = ko.pureComputed(() => 'happy' + self.char() + '.png');
+        self.cost = ko.computed(() => self.char() === 'Pupper' ? 100000 : 100000000000);
+        self.costPretty = ko.pureComputed(() => Intl.NumberFormat().format(self.cost()));
         self.goToGame = function () {
             self.playGame(true);
         };
@@ -248,16 +263,27 @@
             self.playGame(false);
         };
         self.generatePupper = function () {
-            self.rarePuppers(self.rarePuppers() + 1);
+            let a;
+            switch (self.char()) {
+                case 'Pupper':
+                    a = 1;
+                    break;
+                case 'Doggo':
+                    a = 2;
+                    break;
+                default:
+                    a = 10;
+            }
+            self.rarePuppers(self.rarePuppers() + a);
             localStorage.setItem('rarePuppers', self.rarePuppers());
         };
         self.wager = ko.observable(0);
-        self.pupperPic = ko.observable('pupper.png');
+        self.pupperPic = ko.observable(self.charPic());
         self.pupperHover = function () {
-            self.pupperPic('happyPupper.png');
+            self.pupperPic(self.charPicHappy());
         };
         self.pupperNotHover = function () {
-            self.pupperPic('pupper.png');
+            self.pupperPic(self.charPic());
         };
         self.winRate = ko.pureComputed(
             () => Math.round((self.wonGames() / (self.wonGames() + self.lostGames())) * 100) + '%'
@@ -304,6 +330,21 @@
             self.gameStarted(false);
             self.gameEnded(false);
             self.outcome('');
+        };
+        self.upgrade = function () {
+            if(self.char() === "Pupper") {
+                self.rarePuppers(self.rarePuppers() - self.cost());
+                localStorage.setItem('rarePuppers', self.rarePuppers());
+                localStorage.setItem('char', "Doggo");
+                self.char("Doggo");
+                self.pupperNotHover();
+            } else if(self.char() === "Doggo") {
+                self.rarePuppers(self.rarePuppers() - self.cost());
+                localStorage.setItem('rarePuppers', self.rarePuppers());
+                localStorage.setItem('char', "Woofer");
+                self.char("Woofer");
+                self.pupperNotHover();
+            }
         }
     }, vm = new VM();
     ko.applyBindings(vm);
