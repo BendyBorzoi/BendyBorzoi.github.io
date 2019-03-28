@@ -448,7 +448,7 @@
             self.invested(+self.invested());
             self.invested(+self.invested() + +self.invest());
             localStorage.setItem('invested', self.invested());
-            self.invest(1);
+            self.invest(0);
         };
         self.giveReturn = function () {
             self.accumulatedReturn(+self.accumulatedReturn() + (Math.log(1 + (0.00001 * self.invested()))));
