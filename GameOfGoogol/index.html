@@ -65,6 +65,8 @@
                 If you reveal all numbers in the set, you have to choose the last number you revealed. <br>
                 Once you have chosen, the chosen number is then compared to each number in the initial set.<br>
                 If you have chosen the largest number in the set, you win, else, you lose.<br>
+                You may wager rare Pepes, but be aware, their value is inconceivable. Winning the game will grant you
+                your wager fourfold.<br>
                 My inspiration and a great video on the Game of Googol:
                 <a href="https://www.youtube.com/watch?v=OeJobV4jJG0" target="_blank"
                 >https://www.youtube.com/watch?v=OeJobV4jJG0</a><br>
@@ -72,18 +74,36 @@
                 <br><br>
             </div>
             <div data-bind="hidden: gameStarted() || gameEnded()">
-                <label for="num">Number of unknowns:</label>
-                <div class="input-group col-md-3">
-                    <input type="number" min="2" max="1000" step="1"
-                           data-bind="value: numberOfUnknowns" class="form-control" id="num">
-                    <div class="input-group-append">
-                        <button data-bind="click: startGame" class="btn btn-primary">Start</button>
+                <form class="form-inline" data-bind="submit: startGame">
+                    <div class="form-row align-items-center">
+                        <div class="col">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <label for="num" class="input-group-text">Number of unknowns:</label>
+                                </div>
+                                <input type="number" min="2" max="1000" step="1"
+                                       data-bind="value: numberOfUnknowns" class="form-control" id="num">
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <label for="wag" class="input-group-text">Your Wager:</label>
+                                </div>
+                                <input type="number" min="0" step="1"
+                                       data-bind="value: wager, attr: {max: rarePepes}" class="form-control" id="wag">
+                            </div>
+                        </div>
+                        <div class="col">
+                            <button type="submit" class="btn btn-primary">Start</button>
+                        </div>
                     </div>
-                </div>
+                </form>
             </div>
             <div data-bind="visible: gameStarted">
                 Number of initial unknowns: <span data-bind="text: numberOfUnknowns"></span>;
-                Number of revealed integers: <span data-bind="text: revealedCount"></span><br>
+                Number of revealed integers: <span data-bind="text: revealedCount"></span>;
+                Your wager: <span data-bind="text: wager"></span><br>
                 <span data-bind="html: knownPretty"></span><br><br>
                 <button data-bind="click: reveal, enable: revealedCount() < unknowns().length" class="btn btn-primary">
                     Reveal the Next Number
@@ -94,7 +114,8 @@
             <div data-bind="visible: gameEnded">
                 <h1 data-bind="text: outcome"></h1><br>
                 Number of initial unknowns: <span data-bind="text: numberOfUnknowns"></span>;
-                Number of revealed integers: <span data-bind="text: revealedCount"></span><br>
+                Number of revealed integers: <span data-bind="text: revealedCount"></span>;
+                Your wager: <span data-bind="text: wager"></span><br>
                 <div class="arrDisplay">Revealed integers:<br><span data-bind="html: knownPretty"></span><br></div>
                 Chosen Integer: <span data-bind="html: chosen"></span><br>
                 Largest Integer: <span data-bind="html: largestNumber"></span><br>
@@ -111,11 +132,14 @@
             Won: <span data-bind="text: wonGames"></span>;
             Lost: <span data-bind="text: lostGames"></span>;
             <span data-bind="visible: wonGames() || lostGames()">Win rate: <span
-                    data-bind="text: winRate"></span></span>
-        <div style="float: right">
-            <button data-bind="click: showRulesAgain, hidden: showRules" class="btn btn-outline-secondary">Show rules</button>
+                    data-bind="text: winRate"></span>;</span>
+            Rare Pepes: <span data-bind="text: rarePepes"></span>
+            <div style="float: right">
+                <button data-bind="click: showRulesAgain, hidden: showRules" class="btn btn-outline-secondary">Show
+                    rules
+                </button>
+            </div>
         </div>
-    </div>
     </div>
 </footer>
 <script>
@@ -127,6 +151,9 @@
     }
     if (localStorage.getItem('showRules') === null) {
         localStorage.setItem('showRules', "1");
+    }
+    if (localStorage.getItem('rarePepes') === null) {
+        localStorage.setItem('rarePepes', "100");
     }
 
     class NumGoo {
@@ -198,12 +225,16 @@
         self.unknownsPretty = ko.pureComputed(() => displayArr(self.unknowns()));
         self.wonGames = ko.observable(+localStorage.getItem('wonGames'));
         self.lostGames = ko.observable(+localStorage.getItem('lostGames'));
+        self.rarePepes = ko.observable(+localStorage.getItem('rarePepes'));
+        self.wager = ko.observable(0);
         self.winRate = ko.pureComputed(
             () => Math.round((self.wonGames() / (self.wonGames() + self.lostGames())) * 100) + '%'
         );
         self.startGame = function () {
             let a = self.numberOfUnknowns();
             self.gameStarted(true);
+            self.rarePepes(self.rarePepes() - self.wager());
+            localStorage.setItem('rarePepes', self.rarePepes());
             while (a > 0) {
                 self.unknowns.push(new NumGoo());
                 a--;
@@ -219,11 +250,13 @@
             let arr = self.unknowns();
             arr.sort((a, b) => b.abs - a.abs);
             if (chosen.abs === arr[0].abs) {
-                self.outcome('You won! 👍');
+                self.outcome('You won' + (self.wager() ? ' ' + (self.wager() * 4) + ' rare Pepes' : '') + '! 👍');
                 self.wonGames(self.wonGames() + 1);
                 localStorage.setItem('wonGames', '' + self.wonGames());
+                self.rarePepes(self.rarePepes() + (self.wager() * 4));
+                localStorage.setItem('rarePepes', self.rarePepes());
             } else {
-                self.outcome('You lost! 👎');
+                self.outcome('You lost' + (self.wager() ? '. Your ' + self.wager() + ' rare Pepes now must die' : '') + '! 👎');
                 self.lostGames(self.lostGames() + 1);
                 localStorage.setItem('lostGames', '' + self.lostGames());
             }
@@ -235,7 +268,6 @@
             self.unknowns([]);
             self.known([]);
             self.revealedCount(0);
-            self.numberOfUnknowns(10);
             self.largestNumber(0);
             self.gameStarted(false);
             self.gameEnded(false);
