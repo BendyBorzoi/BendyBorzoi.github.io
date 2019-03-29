@@ -106,7 +106,7 @@
             <div data-bind="visible: gameStarted">
                 Number of initial unknowns: <span data-bind="text: numberOfUnknowns"></span>;
                 Number of revealed integers: <span data-bind="text: revealedCount"></span>;
-                Your wager: <span data-bind="text: Intl.NumberFormat().format(wager())"></span><br>
+                Your wager: <span data-bind="html: displayNumber(wager())"></span><br>
                 <span data-bind="html: knownPretty"></span><br><br>
                 <button data-bind="click: reveal, enable: revealedCount() < unknowns().length" class="btn btn-primary">
                     Reveal the Next Number
@@ -115,7 +115,7 @@
                 </button>
             </div>
             <div data-bind="visible: gameEnded">
-                <h1 data-bind="text: outcome"></h1><br>
+                <h1 data-bind="html: outcome"></h1><br>
                 Number of initial unknowns: <span data-bind="text: numberOfUnknowns"></span>;
                 Number of revealed integers: <span data-bind="text: revealedCount"></span>;
                 Your wager: <span data-bind="text: wager"></span><br>
@@ -437,7 +437,7 @@
             let arr = self.unknowns();
             arr.sort((a, b) => b.abs - a.abs);
             if (chosen.abs === arr[0].abs) {
-                self.outcome('You won' + (self.wager() ? ' ' + (self.wager() * 4) + ' Pupper Points' : '') + '! 👍');
+                self.outcome('You won' + (self.wager() ? ' ' + displayNumber(self.wager() * 4) + ' Pupper Points' : '') + '! 👍');
                 self.wonGames(self.wonGames() + 1);
                 localStorage.setItem('wonGames', '' + self.wonGames());
                 self.rarePuppers(self.rarePuppers() + (self.wager() * 4));
