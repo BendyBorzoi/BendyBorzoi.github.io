@@ -74,34 +74,32 @@
     <div class="container" data-bind="visible: currentPage() === 'game'">
         <div class="col-md-12">
             <div data-bind="hidden: gameStarted() || gameEnded()">
-                <form class="form-inline" data-bind="submit: startGame">
-                    <div class="form-row align-items-center">
-                        <div class="col-md-5">
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <label for="num" class="input-group-text">Number of unknowns:</label>
-                                </div>
-                                <input type="number" min="10" max="1000" step="1"
-                                       data-bind="value: numberOfUnknowns" class="form-control" id="num">
+                <form data-bind="submit: startGame">
+                    <div class="form-group form-row">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <label for="num" class="input-group-text">Number of unknowns:</label>
+                            </div>
+                            <input type="number" min="10" max="1000" step="1"
+                                   data-bind="value: numberOfUnknowns" class="form-control" id="num">
+                        </div>
+                    </div>
+                    <div class="form-group form-row">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <label for="wag" class="input-group-text">Your Wager:</label>
+                            </div>
+                            <input type="number" min="0" step="1"
+                                   data-bind="value: wager, attr: {max: rarePuppers() + invested()}"
+                                   class="form-control" id="wag">
+                            <div class="input-group-append">
+                                <button data-bind="click: maxOwnWager" class="btn btn-primary">Max own!</button>
+                                <button data-bind="click: maxWager" class="btn btn-primary">Max!</button>
                             </div>
                         </div>
-                        <div class="col-md-5">
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <label for="wag" class="input-group-text">Your Wager:</label>
-                                </div>
-                                <input type="number" min="0" step="1"
-                                       data-bind="value: wager, attr: {max: rarePuppers() + invested()}"
-                                       class="form-control" id="wag">
-                                <div class="input-group-append">
-                                    <button data-bind="click: maxOwnWager" class="btn btn-primary">Max own!</button>
-                                    <button data-bind="click: maxWager" class="btn btn-primary">Max!</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-2">
-                            <button type="submit" class="btn btn-primary">Start</button>
-                        </div>
+                    </div>
+                    <div class="form-group form-row">
+                        <button type="submit" class="btn btn-primary">Start</button>
                     </div>
                 </form>
             </div>
@@ -138,7 +136,7 @@
             <br>
             <button style="position: absolute; left: 50%; transform: translate(-50%,0)" class="btn btn-primary"
                     data-bind="visible: char() !== 'Woofer', enable: rarePuppers() >= cost(), click: upgrade">
-                Use <span data-bind="text: costPretty"></span> Pupper Points to summon the Rare <span
+                Use <span data-bind="html: costPretty"></span> Pupper Points to summon the Rare <span
                     data-bind="text: nextUpgrade"></span>
             </button>
         </div>
@@ -151,17 +149,14 @@
                 dogs. There are a lot of dogs there. Investing also enhances pets of the Rare <span
                     data-bind="text: char"></span>. You can also go into debt while playing the game of Googol for
                 as many Pupper Points as you have invested. While you are in debt, your return of investment is reduced
-                depending on the size of your debt.
+                depending on the size of your debt.<br>Your investments:&nbsp;<span
+                    data-bind="html: displayNumber(invested())"></span>&nbsp;Pupper
+                Points
                 <form data-bind="submit: doInvestment">
                     <div class="form-row">
                         <div class="col-md-10">
                             <div class="form-group">
                                 <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <label for="invest" class="input-group-text">Your investments:&nbsp;<span
-                                                data-bind="text: Intl.NumberFormat().format(invested())"></span>&nbsp;Pupper
-                                            Points</label>
-                                    </div>
                                     <input class="form-control" id="invest" type="number" min="0" step="1"
                                            data-bind="value: invest, attr: {max: Math.max(rarePuppers() - 1, 0)}">
                                     <div class="input-group-append">
@@ -188,12 +183,13 @@
                         <div class="col-md-12">
                             <div class="input-group">
                                 <div class="input-group-prepend"><span class="input-group-text">Your collectible Return:&nbsp;<span
-                                        data-bind="text: accumulatedReturn().toFixed(4)"></span>&nbsp;Pupper Points</span>
+                                        data-bind="html: displayNumber(accumulatedReturn())"></span>&nbsp;Pupper Points</span>
                                 </div>
                                 <div class="input-group-append">
-                                    <button class="btn btn-primary" type="submit" data-bind="enable: accumulatedReturn() >= 1">
+                                    <button class="btn btn-primary" type="submit"
+                                            data-bind="enable: accumulatedReturn() >= 1">
                                         Collect <span
-                                            data-bind="text: Intl.NumberFormat().format(Math.floor(accumulatedReturn()))">
+                                            data-bind="html: displayNumber(Math.floor(accumulatedReturn()))">
                             </span>
                                         Pupper Points
                                     </button>
@@ -239,8 +235,8 @@
 <footer class="footer">
     <div class="container">
         <div>
-            Pupper Points: <span data-bind="text: Intl.NumberFormat().format(rarePuppers())"></span>;
-            Invested: <span data-bind="text: Intl.NumberFormat().format(invested())"></span>
+            Pupper Points: <span data-bind="html: displayNumber(rarePuppers())"></span>;
+            Invested: <span data-bind="html: displayNumber(invested())"></span>
         </div>
     </div>
 </footer>
@@ -312,6 +308,39 @@
         return '[ ' + res + ' ]';
     }
 
+    function getNumberParts(x, b) {
+        let exp = 0;
+        let sgn = 0;
+        if (x === 0) return { sign: 0, mantissa: 0, exponent: 0 };
+        if (x<0) {sgn=1; x=-x;}
+        while (x>b) {x/=b; exp++;}
+        while (x<1) {x*=b; exp--;}
+        return { sign: sgn, mantissa: x, exponent: exp };
+    }
+
+    function displayNumber(num) {
+        num = +num;
+        let numAbs;
+        if (num < 0) {
+            numAbs = -num;
+        } else {
+            numAbs = num;
+        }
+        if (numAbs > 1000000000) {
+            let parts = getNumberParts(num, 10);
+            return '<span title="' + Intl.NumberFormat().format(num) + '"><span>' + parts.mantissa.toPrecision(5)
+                + '</span> &times; 10<sup><span>' + (parts.exponent - 1) + '</span></sup></span>'
+        } else if (num < 100) {
+            if (num !== Math.floor(num)) {
+                return num.toFixed(4);
+            } else {
+                return num;
+            }
+        } else {
+            return Intl.NumberFormat().format(num);
+        }
+    }
+
     let init = false;
 
     let VM = function () {
@@ -346,6 +375,7 @@
         self.charPicHappy = ko.pureComputed(() => 'happy' + self.char() + '.png');
         self.cost = ko.computed(() => self.char() === 'Pupper' ? 1000000 : 100000000000000000);
         self.costPretty = ko.pureComputed(() => Intl.NumberFormat().format(self.cost()));
+        self.lastDate = ko.observable();
         self.generatePupper = function () {
             let a;
             switch (self.char()) {
@@ -358,7 +388,12 @@
                 default:
                     a = 10;
             }
-            a = Math.floor(Math.max(a * Math.max(Math.log(1 + (0.00001 * self.invested())), 1)));
+            a = Math.floor(Math.max(a * Math.max((0.00001 * self.invested()), 1)));
+            if (self.lastDate()) {
+                let diff = Date.now() - self.lastDate();
+                a = Math.floor(a * Math.min(diff / 1000, 1));
+            }
+            self.lastDate(Date.now());
             self.rarePuppers(self.rarePuppers() + a);
             localStorage.setItem('pupperPoints', self.rarePuppers());
         };
@@ -452,7 +487,7 @@
             self.invest(0);
         };
         self.giveReturn = function () {
-            self.accumulatedReturn(+self.accumulatedReturn() + (Math.log(1 + 0.000001 * (self.invested() + Math.min(self.rarePuppers(), 0)))));
+            self.accumulatedReturn(+self.accumulatedReturn() + (0.000001 * (self.invested() + Math.min(self.rarePuppers(), 0))));
             localStorage.setItem('collectibleReturn', self.accumulatedReturn());
             document.getElementsByTagName('title')[0].innerHTML = 'Collect ' + Math.floor(self.accumulatedReturn());
         };
