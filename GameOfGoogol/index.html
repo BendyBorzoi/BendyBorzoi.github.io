@@ -358,7 +358,7 @@
                 default:
                     a = 10;
             }
-            a = Math.floor(Math.max(a * Math.max(0.001 * self.invested(), 1)));
+            a = Math.floor(Math.max(a * Math.max(Math.log(1 + (0.00001 * self.invested())), 1)));
             self.rarePuppers(self.rarePuppers() + a);
             localStorage.setItem('rarePuppers', self.rarePuppers());
         };
@@ -452,7 +452,7 @@
             self.invest(0);
         };
         self.giveReturn = function () {
-            self.accumulatedReturn(+self.accumulatedReturn() + ((0.00001 * (self.invested() + Math.min(self.rarePuppers(), 0)))));
+            self.accumulatedReturn(+self.accumulatedReturn() + (Math.log(1 + 0.000001 * (self.invested() + Math.min(self.rarePuppers(), 0)))));
             localStorage.setItem('accumulatedReturn', self.accumulatedReturn());
             document.getElementsByTagName('title')[0].innerHTML = 'Collect ' + Math.floor(self.accumulatedReturn());
         };
