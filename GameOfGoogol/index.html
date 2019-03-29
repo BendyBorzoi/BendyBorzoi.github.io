@@ -251,8 +251,8 @@
     if (localStorage.getItem('lostGames') === null) {
         localStorage.setItem('lostGames', "0");
     }
-    if (localStorage.getItem('rarePuppers') === null) {
-        localStorage.setItem('rarePuppers', "0");
+    if (localStorage.getItem('pupperPoints') === null) {
+        localStorage.setItem('pupperPoints', "0");
     }
     if (localStorage.getItem('char') === null) {
         localStorage.setItem('char', "Pupper");
@@ -260,11 +260,11 @@
     if (localStorage.getItem('currentPage') === null) {
         localStorage.setItem('currentPage', "stats");
     }
-    if (localStorage.getItem('invested') === null) {
-        localStorage.setItem('invested', "0");
+    if (localStorage.getItem('investedPupperPoints') === null) {
+        localStorage.setItem('investedPupperPoints', "0");
     }
-    if (localStorage.getItem('accumulatedReturn') === null) {
-        localStorage.setItem('accumulatedReturn', "0");
+    if (localStorage.getItem('collectibleReturn') === null) {
+        localStorage.setItem('collectibleReturn', "0");
     }
 
     class NumGoo {
@@ -329,7 +329,7 @@
         self.unknownsPretty = ko.pureComputed(() => displayArr(self.unknowns()));
         self.wonGames = ko.observable(+localStorage.getItem('wonGames'));
         self.lostGames = ko.observable(+localStorage.getItem('lostGames'));
-        self.rarePuppers = ko.observable(+localStorage.getItem('rarePuppers'));
+        self.rarePuppers = ko.observable(+localStorage.getItem('pupperPoints'));
         self.currentPage = ko.observable();
         self.switchPage = function (a) {
             if (init) {
@@ -360,7 +360,7 @@
             }
             a = Math.floor(Math.max(a * Math.max(Math.log(1 + (0.00001 * self.invested())), 1)));
             self.rarePuppers(self.rarePuppers() + a);
-            localStorage.setItem('rarePuppers', self.rarePuppers());
+            localStorage.setItem('pupperPoints', self.rarePuppers());
         };
         self.wager = ko.observable(0);
         self.maxOwnWager = function () {
@@ -383,7 +383,7 @@
             let a = self.numberOfUnknowns();
             self.gameStarted(true);
             self.rarePuppers(self.rarePuppers() - self.wager());
-            localStorage.setItem('rarePuppers', self.rarePuppers());
+            localStorage.setItem('pupperPoints', self.rarePuppers());
             while (a > 0) {
                 self.unknowns.push(new NumGoo());
                 a--;
@@ -403,7 +403,7 @@
                 self.wonGames(self.wonGames() + 1);
                 localStorage.setItem('wonGames', '' + self.wonGames());
                 self.rarePuppers(self.rarePuppers() + (self.wager() * 4));
-                localStorage.setItem('rarePuppers', self.rarePuppers());
+                localStorage.setItem('pupperPoints', self.rarePuppers());
             } else {
                 self.outcome('You lost! 👎');
                 self.lostGames(self.lostGames() + 1);
@@ -425,42 +425,42 @@
         self.upgrade = function () {
             if (self.char() === "Pupper") {
                 self.rarePuppers(self.rarePuppers() - self.cost());
-                localStorage.setItem('rarePuppers', self.rarePuppers());
+                localStorage.setItem('pupperPoints', self.rarePuppers());
                 localStorage.setItem('char', "Doggo");
                 self.char("Doggo");
                 self.pupperNotHover();
             } else if (self.char() === "Doggo") {
                 self.rarePuppers(self.rarePuppers() - self.cost());
-                localStorage.setItem('rarePuppers', self.rarePuppers());
+                localStorage.setItem('pupperPoints', self.rarePuppers());
                 localStorage.setItem('char', "Woofer");
                 self.char("Woofer");
                 self.pupperNotHover();
             }
         };
         self.invest = ko.observable(0);
-        self.invested = ko.observable(+localStorage.getItem('invested'));
-        self.accumulatedReturn = ko.observable(+localStorage.getItem('accumulatedReturn'));
+        self.invested = ko.observable(+localStorage.getItem('investedPupperPoints'));
+        self.accumulatedReturn = ko.observable(+localStorage.getItem('collectibleReturn'));
         self.maxInvest = function () {
             self.invest(Math.max(+self.rarePuppers() - 1, 0));
         };
         self.doInvestment = function () {
             self.rarePuppers(+self.rarePuppers() - self.invest());
-            localStorage.setItem('rarePuppers', self.rarePuppers());
+            localStorage.setItem('pupperPoints', self.rarePuppers());
             self.invested(+self.invested());
             self.invested(+self.invested() + +self.invest());
-            localStorage.setItem('invested', self.invested());
+            localStorage.setItem('investedPupperPoints', self.invested());
             self.invest(0);
         };
         self.giveReturn = function () {
             self.accumulatedReturn(+self.accumulatedReturn() + (Math.log(1 + 0.000001 * (self.invested() + Math.min(self.rarePuppers(), 0)))));
-            localStorage.setItem('accumulatedReturn', self.accumulatedReturn());
+            localStorage.setItem('collectibleReturn', self.accumulatedReturn());
             document.getElementsByTagName('title')[0].innerHTML = 'Collect ' + Math.floor(self.accumulatedReturn());
         };
         self.collectReturn = function () {
             self.rarePuppers(self.rarePuppers() + Math.floor(self.accumulatedReturn()));
-            localStorage.setItem('rarePuppers', self.rarePuppers());
+            localStorage.setItem('pupperPoints', self.rarePuppers());
             self.accumulatedReturn(self.accumulatedReturn() - Math.floor(self.accumulatedReturn()));
-            localStorage.setItem('accumulatedReturn', self.accumulatedReturn());
+            localStorage.setItem('collectibleReturn', self.accumulatedReturn());
         }
     }, vm = new VM();
     ko.applyBindings(vm);
