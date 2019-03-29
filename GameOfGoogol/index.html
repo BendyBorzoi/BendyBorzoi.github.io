@@ -328,6 +328,9 @@
         }
         if (numAbs > 1000000000) {
             let parts = getNumberParts(num, 10);
+            if (parts.sign) {
+                parts.mantissa = -parts.mantissa;
+            }
             return '<span title="' + Intl.NumberFormat().format(num) + '"><span>' + parts.mantissa.toPrecision(5)
                 + '</span> &times; 10<sup><span>' + (parts.exponent - 1) + '</span></sup></span>'
         } else if (num < 100) {
