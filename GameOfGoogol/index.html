@@ -154,7 +154,7 @@
                 depending on the size of your debt.
                 <form data-bind="submit: doInvestment">
                     <div class="form-row">
-                        <div class="col-md-12">
+                        <div class="col-md-10">
                             <div class="form-group">
                                 <div class="input-group">
                                     <div class="input-group-prepend">
@@ -172,8 +172,11 @@
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                        <div class="col-md-2">
                             <div class="form-group">
-                                <button class="btn btn-primary" type="submit" data-bind="enable: rarePuppers() > 1">
+                                <button class="btn btn-primary" type="submit"
+                                        data-bind="enable: rarePuppers() > 1 && invest() > 0">
                                     Invest!
                                 </button>
                             </div>
@@ -188,7 +191,7 @@
                                         data-bind="text: accumulatedReturn().toFixed(4)"></span>&nbsp;Pupper Points</span>
                                 </div>
                                 <div class="input-group-append">
-                                    <button class="btn btn-primary" type="submit">
+                                    <button class="btn btn-primary" type="submit" data-bind="enable: accumulatedReturn() >= 1">
                                         Collect <span
                                             data-bind="text: Intl.NumberFormat().format(Math.floor(accumulatedReturn()))">
                             </span>
@@ -248,9 +251,6 @@
     if (localStorage.getItem('lostGames') === null) {
         localStorage.setItem('lostGames', "0");
     }
-    if (localStorage.getItem('showRules') === null) {
-        localStorage.setItem('showRules', "1");
-    }
     if (localStorage.getItem('rarePuppers') === null) {
         localStorage.setItem('rarePuppers', "0");
     }
@@ -258,7 +258,7 @@
         localStorage.setItem('char', "Pupper");
     }
     if (localStorage.getItem('currentPage') === null) {
-        localStorage.setItem('currentPage', "game");
+        localStorage.setItem('currentPage', "stats");
     }
     if (localStorage.getItem('invested') === null) {
         localStorage.setItem('invested', "0");
@@ -358,7 +358,7 @@
                 default:
                     a = 10;
             }
-            a = Math.floor(Math.max(a * Math.log(1 + (0.001 * self.invested())), 1));
+            a = Math.floor(Math.max(a * Math.max(0.001 * self.invested(), 1)));
             self.rarePuppers(self.rarePuppers() + a);
             localStorage.setItem('rarePuppers', self.rarePuppers());
         };
@@ -452,7 +452,7 @@
             self.invest(0);
         };
         self.giveReturn = function () {
-            self.accumulatedReturn(+self.accumulatedReturn() + (Math.log(1 + (0.00001 * (self.invested() + Math.min(self.rarePuppers(), 0))))));
+            self.accumulatedReturn(+self.accumulatedReturn() + ((0.00001 * (self.invested() + Math.min(self.rarePuppers(), 0)))));
             localStorage.setItem('accumulatedReturn', self.accumulatedReturn());
             document.getElementsByTagName('title')[0].innerHTML = 'Collect ' + Math.floor(self.accumulatedReturn());
         };
