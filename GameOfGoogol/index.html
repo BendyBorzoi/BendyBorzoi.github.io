@@ -391,7 +391,7 @@
             a = Math.floor(Math.max(a * Math.max((0.00001 * self.invested()), 1)));
             if (self.lastDate()) {
                 let diff = Date.now() - self.lastDate();
-                a = Math.floor(a * Math.min(diff / 1000, 1));
+                a = Math.floor(a * Math.min(diff / 200, 1));
             }
             self.lastDate(Date.now());
             self.rarePuppers(self.rarePuppers() + a);
