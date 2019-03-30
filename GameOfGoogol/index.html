@@ -67,6 +67,10 @@
                        href="#">Rules and Stats</a>
                 </li>
             </ul>
+            <div class="navbar-text">
+                Pupper Points: <span data-bind="html: displayNumber(rarePuppers())"></span>;
+                Invested: <span data-bind="html: displayNumber(invested())"></span>
+            </div>
         </div>
     </nav>
 </header>
@@ -149,8 +153,10 @@
                 dogs. There are a lot of dogs there. Investing also enhances pets of the Rare <span
                     data-bind="text: char"></span>. You can also go into debt while playing the game of Googol for
                 as many Pupper Points as you have invested. While you are in debt, your return of investment is reduced
-                depending on the size of your debt.<br>Your investments:&nbsp;<span
-                    data-bind="html: displayNumber(invested())"></span>&nbsp;Pupper
+                depending on the size of your debt.<br>If you happen to be in debt, petting the Rare
+                <span data-bind="text: char"></span>
+                will make the dogs at the bank forget about your debt fairly quickly.<br>
+                Your investments:&nbsp;<span data-bind="html: displayNumber(invested())"></span>&nbsp;Pupper
                 Points
                 <form data-bind="submit: doInvestment">
                     <div class="form-row">
@@ -232,14 +238,6 @@
         </div>
     </div>
 </main>
-<footer class="footer">
-    <div class="container">
-        <div>
-            Pupper Points: <span data-bind="html: displayNumber(rarePuppers())"></span>;
-            Invested: <span data-bind="html: displayNumber(invested())"></span>
-        </div>
-    </div>
-</footer>
 <script>
     if (localStorage.getItem('wonGames') === null) {
         localStorage.setItem('wonGames', "0");
@@ -311,11 +309,20 @@
     function getNumberParts(x, b) {
         let exp = 0;
         let sgn = 0;
-        if (x === 0) return { sign: 0, mantissa: 0, exponent: 0 };
-        if (x<0) {sgn=1; x=-x;}
-        while (x>b) {x/=b; exp++;}
-        while (x<1) {x*=b; exp--;}
-        return { sign: sgn, mantissa: x, exponent: exp };
+        if (x === 0) return {sign: 0, mantissa: 0, exponent: 0};
+        if (x < 0) {
+            sgn = 1;
+            x = -x;
+        }
+        while (x > b) {
+            x /= b;
+            exp++;
+        }
+        while (x < 1) {
+            x *= b;
+            exp--;
+        }
+        return {sign: sgn, mantissa: x, exponent: exp};
     }
 
     function displayNumber(num) {
@@ -392,12 +399,15 @@
                     a = 10;
             }
             a = Math.floor(Math.max(a * Math.max((0.0001 * self.invested()), 1)));
+            if (self.rarePuppers() < 0) {
+                a = a + (-self.rarePuppers() / 10);
+            }
             if (self.lastDate()) {
                 let diff = Date.now() - self.lastDate();
                 a = Math.floor(a * Math.min(diff / 200, 1));
             }
             self.lastDate(Date.now());
-            self.rarePuppers(self.rarePuppers() + a);
+            self.rarePuppers(self.rarePuppers() + Math.floor(a));
             localStorage.setItem('pupperPoints', self.rarePuppers());
         };
         self.wager = ko.observable(0);
@@ -518,7 +528,8 @@
         let b = vm.accumulatedReturn();
         vm.giveReturn(a);
         b = vm.accumulatedReturn() - b;
-        alert('While you were asleep at the canine bank, the dogs awarded you ' + displayNumber(b) + ' Pupper Points for being cute.');
+        alert('While you were asleep at the canine bank, the dogs awarded you ' + displayNumber(b) +
+            ' Pupper Points in collectible return for being cute.');
     }
     window.setInterval(() => {
         if (vm.currentPage() === 'bank') {
