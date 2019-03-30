@@ -332,7 +332,7 @@
                 parts.mantissa = -parts.mantissa;
             }
             return '<span title="' + Intl.NumberFormat().format(num) + '"><span>' + parts.mantissa.toPrecision(5)
-                + '</span> &times; 10<sup><span>' + (parts.exponent - 1) + '</span></sup></span>'
+                + '</span>&nbsp;&times;&nbsp;10<sup><span>' + (parts.exponent - 1) + '</span></sup></span>'
         } else if (num < 100) {
             if (num !== Math.floor(num)) {
                 return num.toFixed(4);
@@ -489,8 +489,16 @@
             localStorage.setItem('investedPupperPoints', self.invested());
             self.invest(0);
         };
-        self.giveReturn = function () {
-            self.accumulatedReturn(+self.accumulatedReturn() + (0.00001 * (self.invested() + Math.min(self.rarePuppers(), 0))));
+        self.giveReturn = function (n) {
+            if (!n) {
+                let a = Date.now() - +localStorage.getItem('lastReturn');
+                n = Math.round(a / 1000);
+            }
+            while (n > 0) {
+                self.accumulatedReturn(+self.accumulatedReturn() + (0.00001 * (self.invested() + Math.min(self.rarePuppers(), 0))));
+                n--;
+            }
+            localStorage.setItem('lastReturn', '' + Date.now());
             localStorage.setItem('collectibleReturn', self.accumulatedReturn());
             document.getElementsByTagName('title')[0].innerHTML = 'Collect ' + Math.floor(self.accumulatedReturn());
         };
@@ -504,9 +512,17 @@
     ko.applyBindings(vm);
     init = true;
     vm.switchPage(localStorage.getItem('currentPage'));
+    if (localStorage.getItem('lastReturn') !== null) {
+        let a = Date.now() - +localStorage.getItem('lastReturn');
+        a = Math.floor(a / 1000);
+        let b = vm.accumulatedReturn();
+        vm.giveReturn(a);
+        b = vm.accumulatedReturn() - b;
+        alert('While you were asleep at the canine bank, the dogs awarded you ' + displayNumber(b) + ' Pupper Points for being cute.');
+    }
     window.setInterval(() => {
         if (vm.currentPage() === 'bank') {
-            vm.giveReturn();
+            vm.giveReturn(1);
         }
     }, 1000);
 </script>
