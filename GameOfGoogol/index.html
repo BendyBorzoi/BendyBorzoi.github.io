@@ -4,8 +4,11 @@
     <meta charset="UTF-8">
     <title></title>
     <script src="knockout-3.5.0.js"></script>
+    <script src="jquery-3.3.1.min.js"></script>
+    <script src="popper.min.js"></script>
     <link rel="icon" type="image/png" href="favicon.png"/>
     <link rel="stylesheet" href="bootstrap-4.3.1-dist/css/bootstrap.min.css">
+    <script src="bootstrap-4.3.1-dist/js/bootstrap.min.js"></script>
     <style>
         .arrDisplay {
             margin: 10px 0;
@@ -248,6 +251,22 @@
         </div>
     </div>
 </main>
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Welcome Back!</h5>
+            </div>
+            <div class="modal-body">
+                While you were asleep at the canine bank, the dogs awarded you <span id="backBonus"></span>
+                Pupper Points in collectible return for being cute.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Continue playing</button>
+            </div>
+        </div>
+    </div>
+</div>
 <script>
     if (localStorage.getItem('wonGames') === null) {
         localStorage.setItem('wonGames', "0");
@@ -417,7 +436,7 @@
                 a = Math.floor(a * Math.min(diff / 200, 1));
             }
             self.lastDate(Date.now());
-            self.rarePuppers(self.rarePuppers() + Math.floor(a));
+            self.rarePuppers(self.rarePuppers() + Math.max(Math.floor(a), 1));
             localStorage.setItem('pupperPoints', self.rarePuppers());
         };
         self.wager = ko.observable(0);
@@ -535,8 +554,8 @@
         let b = vm.accumulatedReturn();
         vm.giveReturn(a);
         b = vm.accumulatedReturn() - b;
-        alert('While you were asleep at the canine bank, the dogs awarded you ' + b +
-            ' Pupper Points in collectible return for being cute.');
+        $('#myModal').modal();
+        $('#backBonus').html(displayNumber(b));
     }
     window.setInterval(() => {
         if (vm.currentPage() === 'bank') {
