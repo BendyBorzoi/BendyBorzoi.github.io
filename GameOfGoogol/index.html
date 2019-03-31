@@ -78,7 +78,8 @@
     </nav>
 </header>
 <main>
-    <div class="container" data-bind="visible: currentPage() === 'game'" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%)">
+    <div class="container" data-bind="visible: currentPage() === 'game'"
+         style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%)">
         <div class="col-md-12">
             <div data-bind="hidden: gameStarted() || gameEnded()">
                 <form data-bind="submit: startGame">
@@ -106,7 +107,9 @@
                             <button type="submit" class="btn btn-primary">Start</button>
                         </div>
                         <div class="btn-group col" role="group">
-                            <button data-bind="click: maxWager" class="btn btn-primary" type="button">Use maximum wager!</button>
+                            <button data-bind="click: maxWager" class="btn btn-primary" type="button">Use maximum
+                                wager!
+                            </button>
                         </div>
                     </div>
                 </form>
@@ -217,7 +220,7 @@
                 <h1>Da Rules</h1>
                 <h2>About the Game of Googol</h2>
                 <p>
-                    You are given a set of unknown integers, values ranging from 1 to 10<sub>100</sub>. You choose how
+                    You are given a set of unknown integers, values ranging from 1 to 10<sup>100</sup>. You choose how
                     many unknowns there are. The values are randomly generated and shuffled. At the start of the game,
                     you reveal the first integer. You are then given a choice: Choose this number or reveal another
                     number. The same choice is given after every reveal. If you reveal another number, you can only
@@ -228,15 +231,17 @@
                 <h2>About the Pupper Points</h2>
                 <p>
                     You may wager Pupper points, but be aware, their value is inconceivable. Winning the game will grant
-                    you your wager fourfold. You may visit the rare <span data-bind="text: char"></span> and pet him to
-                    gain more Pupper Points.
+                    you your wager fourfold. You may visit the rare <span data-bind="text: char"></span> and pet him or
+                    invest into treat bonds at the canine bank to gain more Pupper Points.
                 </p>
                 <h2>Not all values are equally likely to appear in my version of the game.</h2>
-                <p>This is because, if every value would be equally likely, the vast majority of values would be upwards
+                <p>
+                    This is because, if every value would be equally likely, the vast majority of values would be upwards
                     of 10<sup>97</sup>. With the method I use, values seem more equally distributed and I find it more
                     suitable for a game. It's about having fun, not calculation numbers in the most accurate way there
                     is. If you want, you can fork this game and make it so the values are all equally likely. I mean
-                    that. Go for it!</p>
+                    that. Go for it!
+                </p>
                 My inspiration and a great video on the Game of Googol:
                 <a href="https://www.youtube.com/watch?v=OeJobV4jJG0" target="_blank"
                 >https://www.youtube.com/watch?v=OeJobV4jJG0</a>
@@ -343,7 +348,7 @@
             sgn = 1;
             x = -x;
         }
-        while (x > b) {
+        while (x >= b) {
             x /= b;
             exp++;
         }
@@ -354,7 +359,7 @@
         return {sign: sgn, mantissa: x, exponent: exp};
     }
 
-    function displayNumber(num) {
+    function displayNumber(num, nohtml) {
         num = +num;
         let numAbs;
         if (num < 0) {
@@ -367,8 +372,11 @@
             if (parts.sign) {
                 parts.mantissa = -parts.mantissa;
             }
+            if (nohtml) {
+                return parts.mantissa.toPrecision(5) + 'x10^' + parts.exponent;
+            }
             return '<span title="' + Intl.NumberFormat().format(num) + '"><span>' + parts.mantissa.toPrecision(5)
-                + '</span>&nbsp;&times;&nbsp;10<sup><span>' + (parts.exponent - 1) + '</span></sup></span>'
+                + '</span>&nbsp;&times;&nbsp;10<sup><span>' + parts.exponent + '</span></sup></span>'
         } else if (num < 100) {
             if (num !== Math.floor(num)) {
                 return num.toFixed(4);
@@ -536,7 +544,7 @@
             }
             localStorage.setItem('lastReturn', '' + Date.now());
             localStorage.setItem('collectibleReturn', self.accumulatedReturn());
-            document.getElementsByTagName('title')[0].innerHTML = 'Collect ' + Math.floor(self.accumulatedReturn());
+            document.getElementsByTagName('title')[0].innerHTML = 'Collect ' + displayNumber(self.accumulatedReturn(), true);
         };
         self.collectReturn = function () {
             self.rarePuppers(self.rarePuppers() + Math.floor(self.accumulatedReturn()));
