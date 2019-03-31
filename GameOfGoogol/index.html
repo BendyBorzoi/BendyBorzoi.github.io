@@ -75,12 +75,12 @@
     </nav>
 </header>
 <main>
-    <div class="container" data-bind="visible: currentPage() === 'game'">
+    <div class="container" data-bind="visible: currentPage() === 'game'" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%)">
         <div class="col-md-12">
             <div data-bind="hidden: gameStarted() || gameEnded()">
                 <form data-bind="submit: startGame">
                     <div class="form-group form-row">
-                        <div class="input-group">
+                        <div class="input-group col">
                             <div class="input-group-prepend">
                                 <label for="num" class="input-group-text">Number of unknowns:</label>
                             </div>
@@ -89,21 +89,22 @@
                         </div>
                     </div>
                     <div class="form-group form-row">
-                        <div class="input-group">
+                        <div class="input-group col">
                             <div class="input-group-prepend">
                                 <label for="wag" class="input-group-text">Your Wager:</label>
                             </div>
                             <input type="number" min="0" step="1"
                                    data-bind="value: wager, attr: {max: rarePuppers() + invested()}"
                                    class="form-control" id="wag">
-                            <div class="input-group-append">
-                                <button data-bind="click: maxOwnWager" class="btn btn-primary">Max own!</button>
-                                <button data-bind="click: maxWager" class="btn btn-primary">Max!</button>
-                            </div>
                         </div>
                     </div>
                     <div class="form-group form-row">
-                        <button type="submit" class="btn btn-primary">Start</button>
+                        <div class="btn-group col" role="group">
+                            <button type="submit" class="btn btn-primary">Start</button>
+                        </div>
+                        <div class="btn-group col" role="group">
+                            <button data-bind="click: maxWager" class="btn btn-primary" type="button">Use maximum wager!</button>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -122,7 +123,7 @@
                 <h1 data-bind="html: outcome"></h1><br>
                 Number of initial unknowns: <span data-bind="text: numberOfUnknowns"></span>;
                 Number of revealed integers: <span data-bind="text: revealedCount"></span>;
-                Your wager: <span data-bind="text: wager"></span><br>
+                Your wager: <span data-bind="html: displayNumber(wager())"></span><br>
                 <div class="arrDisplay">Revealed integers:<br><span data-bind="html: knownPretty"></span><br></div>
                 Chosen Integer: <span data-bind="html: chosen"></span><br>
                 Largest Integer: <span data-bind="html: largestNumber"></span><br>
@@ -211,19 +212,28 @@
         <div class="container">
             <div class="col-md-12">
                 <h1>Da Rules</h1>
-                You are given a set of unknown integers, values ranging from 0 to 10^100. You choose how many unknowns
-                there are.<br>
-                The values are randomly generated and shuffled.<br>
-                At the start of the game, you reveal the first integer. You are then given a choice: Choose this number
-                or reveal another number.<br>
-                The same choice is given after every reveal. If you reveal another number, you can only choose the newly
-                revealed number.<br>
-                If you reveal all numbers in the set, you have to choose the last number you revealed. <br>
-                Once you have chosen, the chosen number is then compared to each number in the initial set.<br>
-                If you have chosen the largest number in the set, you win, else, you lose.<br>
-                You may wager Pupper points, but be aware, their value is inconceivable. Winning the game will grant you
-                your wager fourfold.<br>
-                You may visit the rare <span data-bind="text: char"></span> and pet him to gain more Pupper Points.<br>
+                <h2>About the Game of Googol</h2>
+                <p>
+                    You are given a set of unknown integers, values ranging from 1 to 10<sub>100</sub>. You choose how
+                    many unknowns there are. The values are randomly generated and shuffled. At the start of the game,
+                    you reveal the first integer. You are then given a choice: Choose this number or reveal another
+                    number. The same choice is given after every reveal. If you reveal another number, you can only
+                    choose the newly revealed number. If you reveal all numbers in the set, you have to choose the last
+                    number you revealed. Once you have chosen, the chosen number is then compared to each number in the
+                    initial set. If you have chosen the largest number in the set, you win, else, you lose.
+                </p>
+                <h2>About the Pupper Points</h2>
+                <p>
+                    You may wager Pupper points, but be aware, their value is inconceivable. Winning the game will grant
+                    you your wager fourfold. You may visit the rare <span data-bind="text: char"></span> and pet him to
+                    gain more Pupper Points.
+                </p>
+                <h2>Not all values are equally likely to appear in my version of the game.</h2>
+                <p>This is because, if every value would be equally likely, the vast majority of values would be upwards
+                    of 10<sup>97</sup>. With the method I use, values seem more equally distributed and I find it more
+                    suitable for a game. It's about having fun, not calculation numbers in the most accurate way there
+                    is. If you want, you can fork this game and make it so the values are all equally likely. I mean
+                    that. Go for it!</p>
                 My inspiration and a great video on the Game of Googol:
                 <a href="https://www.youtube.com/watch?v=OeJobV4jJG0" target="_blank"
                 >https://www.youtube.com/watch?v=OeJobV4jJG0</a>
@@ -411,9 +421,6 @@
             localStorage.setItem('pupperPoints', self.rarePuppers());
         };
         self.wager = ko.observable(0);
-        self.maxOwnWager = function () {
-            self.wager(Math.max(+self.rarePuppers(), 0));
-        };
         self.maxWager = function () {
             self.wager(+self.rarePuppers() + +self.invested());
         };
@@ -528,7 +535,7 @@
         let b = vm.accumulatedReturn();
         vm.giveReturn(a);
         b = vm.accumulatedReturn() - b;
-        alert('While you were asleep at the canine bank, the dogs awarded you ' + displayNumber(b) +
+        alert('While you were asleep at the canine bank, the dogs awarded you ' + b +
             ' Pupper Points in collectible return for being cute.');
     }
     window.setInterval(() => {
