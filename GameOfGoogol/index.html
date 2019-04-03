@@ -236,7 +236,8 @@
                 </p>
                 <h2>Not all values are equally likely to appear in my version of the game.</h2>
                 <p>
-                    This is because, if every value would be equally likely, the vast majority of values would be upwards
+                    This is because, if every value would be equally likely, the vast majority of values would be
+                    upwards
                     of 10<sup>97</sup>. With the method I use, values seem more equally distributed and I find it more
                     suitable for a game. It's about having fun, not calculating numbers in the most accurate way there
                     is. If you want, you can fork this game and make it so the values are all equally likely. I mean
@@ -534,14 +535,7 @@
             self.invest(0);
         };
         self.giveReturn = function (n) {
-            if (!n) {
-                let a = Date.now() - +localStorage.getItem('lastReturn');
-                n = Math.round(a / 1000);
-            }
-            while (n > 0) {
-                self.accumulatedReturn(+self.accumulatedReturn() + (0.00001 * (self.invested() + Math.min(self.rarePuppers(), 0))));
-                n--;
-            }
+            self.accumulatedReturn(+self.accumulatedReturn() + (Math.pow(1.00001, n) - 1) * (self.invested() + Math.min(self.rarePuppers(), 0)));
             localStorage.setItem('lastReturn', '' + Date.now());
             localStorage.setItem('collectibleReturn', self.accumulatedReturn());
             document.getElementsByTagName('title')[0].innerHTML = 'Collect ' + displayNumber(self.accumulatedReturn(), true);
