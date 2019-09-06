@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <script src="knockout-3.5.0.js"></script>
+    <script src="jquery-3.3.1.min.js"></script>
+    <script src="popper.min.js"></script>
+    <link rel="icon" type="image/png" href="favicon.png"/>
+    <link rel="stylesheet" href="bootstrap-4.3.1-dist/css/bootstrap.min.css">
+    <script src="bootstrap-4.3.1-dist/js/bootstrap.min.js"></script>
+    <style>
+        .arrDisplay {
+            margin: 10px 0;
+        }
+
+        .navbar-brand {
+            pointer-events: none;
+        }
+
+        html {
+            position: relative;
+            min-height: 100%;
+        }
+
+        body {
+            margin-bottom: 60px;
+        }
+
+        .footer {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 60px;
+            line-height: 60px;
+            background-color: #f5f5f5;
+        }
+
+        main {
+            padding: 60px 0;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+        <a class="navbar-brand" href="#">The Game of Googol</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse"
+                aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" data-bind="click: switchPage('game'), css: {active: currentPage() === 'game'}"
+                       href="#">Play the game</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bind="click: switchPage('visit'), css: {active: currentPage() === 'visit'}"
+                       href="#">Visit the Rare
+                        <span data-bind="text: char"></span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bind="click: switchPage('bank'), css: {active: currentPage() === 'bank'}"
+                       href="#">Visit the Bank</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bind="click: switchPage('stats'), css: {active: currentPage() === 'stats'}"
+                       href="#">Rules and Stats</a>
+                </li>
+            </ul>
+            <div class="navbar-text">
+                Pupper Points: <span data-bind="html: displayNumber(rarePuppers())"></span>;
+                Invested: <span data-bind="html: displayNumber(invested())"></span>
+            </div>
+        </div>
+    </nav>
+</header>
+<main>
+    <div class="container" data-bind="visible: currentPage() === 'game'"
+         style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%)">
+        <div class="col-md-12">
+            <div data-bind="hidden: gameStarted() || gameEnded()">
+                <form data-bind="submit: startGame">
+                    <div class="form-group form-row">
+                        <div class="input-group col">
+                            <div class="input-group-prepend">
+                                <label for="num" class="input-group-text">Number of unknowns:</label>
+                            </div>
+                            <input type="number" min="10" max="1000" step="1"
+                                   data-bind="value: numberOfUnknowns" class="form-control" id="num">
+                        </div>
+                    </div>
+                    <div class="form-group form-row">
+                        <div class="input-group col">
+                            <div class="input-group-prepend">
+                                <label for="wag" class="input-group-text">Your Wager:</label>
+                            </div>
+                            <input type="number" min="0" step="1"
+                                   data-bind="value: wager, attr: {max: rarePuppers() + invested()}"
+                                   class="form-control" id="wag">
+                        </div>
+                    </div>
+                    <div class="form-group form-row">
+                        <div class="btn-group col" role="group">
+                            <button type="submit" class="btn btn-primary">Start</button>
+                        </div>
+                        <div class="btn-group col" role="group">
+                            <button data-bind="click: maxWager" class="btn btn-primary" type="button">Use maximum
+                                wager!
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div data-bind="visible: gameStarted">
+                Number of initial unknowns: <span data-bind="text: numberOfUnknowns"></span>;
+                Number of revealed integers: <span data-bind="text: revealedCount"></span>;
+                Your wager: <span data-bind="html: displayNumber(wager())"></span><br>
+                <span data-bind="html: knownPretty"></span><br><br>
+                <button data-bind="click: reveal, enable: revealedCount() < unknowns().length" class="btn btn-primary">
+                    Reveal the Next Number
+                </button>
+                <button data-bind="click: choose, enable: revealedCount" class="btn btn-primary">Choose This Number
+                </button>
+            </div>
+            <div data-bind="visible: gameEnded">
+                <h1 data-bind="html: outcome"></h1><br>
+                Number of initial unknowns: <span data-bind="text: numberOfUnknowns"></span>;
+                Number of revealed integers: <span data-bind="text: revealedCount"></span>;
+                Your wager: <span data-bind="html: displayNumber(wager())"></span><br>
+                <div class="arrDisplay">Revealed integers:<br><span data-bind="html: knownPretty"></span><br></div>
+                Chosen Integer: <span data-bind="html: chosen"></span><br>
+                Largest Integer: <span data-bind="html: largestNumber"></span><br>
+                <div class="arrDisplay">Initial unknowns:<br><span data-bind="html: unknownsPretty"></span><br></div>
+                <br>
+                <button data-bind="click: reset" class="btn btn-primary">Reset game</button>
+            </div>
+        </div>
+    </div>
+    <div data-bind="visible: currentPage() === 'visit'">
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%)">
+            <div style="cursor: grab" data-bind="event: {mouseover: pupperHover, mouseout: pupperNotHover}">
+                <img style="height: 400px" data-bind="click: generatePupper, attr: {src: pupperPic}" alt="Pupper">
+            </div>
+            <br>
+            <button style="position: absolute; left: 50%; transform: translate(-50%,0)" class="btn btn-primary"
+                    data-bind="visible: char() !== 'Woofer', enable: rarePuppers() >= cost(), click: upgrade">
+                Use <span data-bind="html: costPretty"></span> Pupper Points to summon the Rare <span
+                    data-bind="text: nextUpgrade"></span>
+            </button>
+        </div>
+    </div>
+    <div data-bind="visible: currentPage() === 'bank'">
+        <div class="container">
+            <div class="col-md-12">
+                <h1>Canine Bank</h1>
+                The canine bank grants you a steady return of your investments while you hang out there and pet the
+                dogs. There are a lot of dogs there. Investing also enhances pets of the Rare <span
+                    data-bind="text: char"></span>. You can also go into debt while playing the game of Googol for
+                as many Pupper Points as you have invested. While you are in debt, your return of investment is reduced
+                depending on the size of your debt.<br>If you happen to be in debt, petting the Rare
+                <span data-bind="text: char"></span>
+                will make the dogs at the bank forget about your debt fairly quickly.<br>
+                Your investments:&nbsp;<span data-bind="html: displayNumber(invested())"></span>&nbsp;Pupper
+                Points
+                <form data-bind="submit: doInvestment">
+                    <div class="form-row">
+                        <div class="col-md-10">
+                            <div class="form-group">
+                                <div class="input-group">
+                                    <input class="form-control" id="invest" type="number" min="0" step="1"
+                                           data-bind="value: invest, attr: {max: Math.max(rarePuppers() - 1, 0)}">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-primary" type="button"
+                                                data-bind="click: maxInvest, enable: rarePuppers() > 1">
+                                            Max!
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <button class="btn btn-primary" type="submit"
+                                        data-bind="enable: rarePuppers() > 1 && invest() > 0">
+                                    Invest!
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                <form data-bind="submit: collectReturn">
+                    <div class="form-row">
+                        <div class="col-md-12">
+                            <div class="input-group">
+                                <div class="input-group-prepend"><span class="input-group-text">Your collectible Return:&nbsp;<span
+                                        data-bind="html: displayNumber(accumulatedReturn())"></span>&nbsp;Pupper Points</span>
+                                </div>
+                                <div class="input-group-append">
+                                    <button class="btn btn-primary" type="submit"
+                                            data-bind="enable: accumulatedReturn() >= 1">
+                                        Collect <span
+                                            data-bind="html: displayNumber(Math.floor(accumulatedReturn()))">
+                            </span>
+                                        Pupper Points
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div data-bind="visible: currentPage() === 'stats'">
+        <div class="container">
+            <div class="col-md-12">
+                <h1>Da Rules</h1>
+                <h2>About the Game of Googol</h2>
+                <p>
+                    You are given a set of unknown integers, values ranging from 1 to 10<sup>100</sup>. You choose how
+                    many unknowns there are. The values are randomly generated and shuffled. At the start of the game,
+                    you reveal the first integer. You are then given a choice: Choose this number or reveal another
+                    number. The same choice is given after every reveal. If you reveal another number, you can only
+                    choose the newly revealed number. If you reveal all numbers in the set, you have to choose the last
+                    number you revealed. Once you have chosen, the chosen number is then compared to each number in the
+                    initial set. If you have chosen the largest number in the set, you win, else, you lose.
+                </p>
+                <h2>About the Pupper Points</h2>
+                <p>
+                    You may wager Pupper points, but be aware, their value is inconceivable. Winning the game will grant
+                    you your wager fourfold. You may visit the rare <span data-bind="text: char"></span> and pet him or
+                    invest into treat bonds at the canine bank to gain more Pupper Points.
+                </p>
+                <h2>Not all values are equally likely to appear in my version of the game.</h2>
+                <p>
+                    This is because, if every value would be equally likely, the vast majority of values would be
+                    upwards
+                    of 10<sup>97</sup>. With the method I use, values seem more equally distributed and I find it more
+                    suitable for a game. It's about having fun, not calculating numbers in the most accurate way there
+                    is. If you want, you can fork this game and make it so the values are all equally likely. I mean
+                    that. Go for it!
+                </p>
+                My inspiration and a great video on the Game of Googol:
+                <a href="https://www.youtube.com/watch?v=OeJobV4jJG0" target="_blank"
+                >https://www.youtube.com/watch?v=OeJobV4jJG0</a>
+                <br><br>
+                <h1>Your Stats</h1>
+                Won: <span data-bind="text: wonGames"></span>;
+                Lost: <span data-bind="text: lostGames"></span>;
+                <span data-bind="visible: wonGames() || lostGames()">
+                    Win rate: <span data-bind="text: winRate"></span>
+                </span>
+            </div>
+        </div>
+    </div>
+</main>
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Welcome Back!</h5>
+            </div>
+            <div class="modal-body">
+                While you were asleep at the canine bank, the dogs awarded you <span id="backBonus"></span>
+                Pupper Points in collectible return for being cute.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Continue playing</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    if (localStorage.getItem('wonGames') === null) {
+        localStorage.setItem('wonGames', "0");
+    }
+    if (localStorage.getItem('lostGames') === null) {
+        localStorage.setItem('lostGames', "0");
+    }
+    if (localStorage.getItem('pupperPoints') === null) {
+        localStorage.setItem('pupperPoints', "0");
+    }
+    if (localStorage.getItem('char') === null) {
+        localStorage.setItem('char', "Pupper");
+    }
+    if (localStorage.getItem('currentPage') === null) {
+        localStorage.setItem('currentPage', "stats");
+    }
+    if (localStorage.getItem('investedPupperPoints') === null) {
+        localStorage.setItem('investedPupperPoints', "0");
+    }
+    if (localStorage.getItem('collectibleReturn') === null) {
+        localStorage.setItem('collectibleReturn', "0");
+    }
+
+    class NumGoo {
+        constructor() {
+            this.val = Math.random();
+            this.exp = Math.floor((Math.random() * 99) + 1);
+            if (Math.random() > 0.999999) {
+                this.val = 1;
+                this.exp = 100;
+            }
+            while (this.val < 0.1 && this.val) {
+                this.val *= 10;
+            }
+            if (this.exp < 17) {
+                this.val = Math.floor(this.val * Math.pow(10, this.exp)) / Math.pow(10, this.exp);
+            }
+        }
+
+        get abs() {
+            return this.val * Math.pow(10, this.exp);
+        }
+
+        get prettyVal() {
+            return (Math.floor(this.val * Math.pow(10, Math.min(5, this.exp)) + 1) /
+                (Math.pow(10, Math.min(5, this.exp) - 1))).toPrecision(5);
+        }
+
+        get prettyAbs() {
+            if (this.exp === 100) {
+                return 'Googol';
+            }
+            return '<span title="' + this.abs + '"><span>' + this.prettyVal
+                + '</span> &times; 10<sup><span>' + (this.exp - 1) + '</span></sup></span>';
+        }
+    }
+
+    function displayArr(arr) {
+        let res = '';
+        for (let a of arr) {
+            res += a.prettyAbs;
+            if (arr.indexOf(a) !== arr.length - 1) {
+                res += ', ';
+            }
+        }
+        return '[ ' + res + ' ]';
+    }
+
+    function getNumberParts(x, b) {
+        let exp = 0;
+        let sgn = 0;
+        if (x === 0) return {sign: 0, mantissa: 0, exponent: 0};
+        if (x < 0) {
+            sgn = 1;
+            x = -x;
+        }
+        while (x >= b) {
+            x /= b;
+            exp++;
+        }
+        while (x < 1) {
+            x *= b;
+            exp--;
+        }
+        return {sign: sgn, mantissa: x, exponent: exp};
+    }
+
+    function displayNumber(num, nohtml) {
+        num = +num;
+        let numAbs;
+        if (num < 0) {
+            numAbs = -num;
+        } else {
+            numAbs = num;
+        }
+        if (numAbs > 1000000000) {
+            let parts = getNumberParts(num, 10);
+            if (parts.sign) {
+                parts.mantissa = -parts.mantissa;
+            }
+            if (nohtml) {
+                return parts.mantissa.toPrecision(5) + 'x10^' + parts.exponent;
+            }
+            return '<span title="' + Intl.NumberFormat().format(num) + '"><span>' + parts.mantissa.toPrecision(5)
+                + '</span>&nbsp;&times;&nbsp;10<sup><span>' + parts.exponent + '</span></sup></span>'
+        } else if (num < 100) {
+            if (num !== Math.floor(num)) {
+                return num.toFixed(4);
+            } else {
+                return num;
+            }
+        } else {
+            return Intl.NumberFormat().format(num);
+        }
+    }
+
+    let init = false;
+
+    let VM = function () {
+        let self = this;
+        self.unknowns = ko.observableArray();
+        self.known = ko.observableArray();
+        self.revealedCount = ko.observable(0);
+        self.numberOfUnknowns = ko.observable(10);
+        self.chosen = ko.observable(0);
+        self.largestNumber = ko.observable(0);
+        self.gameStarted = ko.observable(false);
+        self.gameEnded = ko.observable(false);
+        self.outcome = ko.observable('');
+        self.knownPretty = ko.pureComputed(() => displayArr(self.known()));
+        self.unknownsPretty = ko.pureComputed(() => displayArr(self.unknowns()));
+        self.wonGames = ko.observable(+localStorage.getItem('wonGames'));
+        self.lostGames = ko.observable(+localStorage.getItem('lostGames'));
+        self.rarePuppers = ko.observable(+localStorage.getItem('pupperPoints'));
+        self.currentPage = ko.observable();
+        self.switchPage = function (a) {
+            if (init) {
+                self.currentPage(a);
+                localStorage.setItem('currentPage', a);
+                if (a !== 'bank') {
+                    document.getElementsByTagName('title')[0].innerHTML = 'The Game of Googol';
+                }
+            }
+        };
+        self.char = ko.observable(localStorage.getItem('char'));
+        self.nextUpgrade = ko.pureComputed(() => self.char() === 'Pupper' ? 'Doggo' : 'Woofer');
+        self.charPic = ko.pureComputed(() => 'normal' + self.char() + '.png');
+        self.charPicHappy = ko.pureComputed(() => 'happy' + self.char() + '.png');
+        self.cost = ko.computed(() => self.char() === 'Pupper' ? 1000000 : 100000000000000000);
+        self.costPretty = ko.pureComputed(() => Intl.NumberFormat().format(self.cost()));
+        self.lastDate = ko.observable();
+        self.generatePupper = function () {
+            let a;
+            switch (self.char()) {
+                case 'Pupper':
+                    a = 1;
+                    break;
+                case 'Doggo':
+                    a = 2;
+                    break;
+                default:
+                    a = 10;
+            }
+            a = Math.floor(Math.max(a * Math.max((0.0001 * self.invested()), 1)));
+            if (self.rarePuppers() < 0) {
+                a = a + (-self.rarePuppers() / 10);
+            }
+            if (self.lastDate()) {
+                let diff = Date.now() - self.lastDate();
+                a = Math.floor(a * Math.min(diff / 200, 1));
+            }
+            self.lastDate(Date.now());
+            self.rarePuppers(self.rarePuppers() + Math.max(Math.floor(a), 1));
+            localStorage.setItem('pupperPoints', self.rarePuppers());
+        };
+        self.wager = ko.observable(0);
+        self.maxWager = function () {
+            self.wager(+self.rarePuppers() + +self.invested());
+        };
+        self.pupperPic = ko.observable(self.charPic());
+        self.pupperHover = function () {
+            self.pupperPic(self.charPicHappy());
+        };
+        self.pupperNotHover = function () {
+            self.pupperPic(self.charPic());
+        };
+        self.winRate = ko.pureComputed(
+            () => Math.round((self.wonGames() / (self.wonGames() + self.lostGames())) * 100) + '%'
+        );
+        self.startGame = function () {
+            let a = self.numberOfUnknowns();
+            self.gameStarted(true);
+            self.rarePuppers(self.rarePuppers() - self.wager());
+            localStorage.setItem('pupperPoints', self.rarePuppers());
+            while (a > 0) {
+                self.unknowns.push(new NumGoo());
+                a--;
+            }
+        };
+        self.reveal = function () {
+            self.known.push(self.unknowns()[self.revealedCount()]);
+            self.revealedCount(self.revealedCount() + 1);
+        };
+        self.choose = function () {
+            let chosen = self.known()[self.revealedCount() - 1];
+            self.chosen(chosen.prettyAbs);
+            let arr = self.unknowns();
+            arr.sort((a, b) => b.abs - a.abs);
+            if (chosen.abs === arr[0].abs) {
+                self.outcome('You won' + (self.wager() ? ' ' + displayNumber(self.wager() * 4) + ' Pupper Points' : '') + '! 👍');
+                self.wonGames(self.wonGames() + 1);
+                localStorage.setItem('wonGames', '' + self.wonGames());
+                self.rarePuppers(self.rarePuppers() + (self.wager() * 4));
+                localStorage.setItem('pupperPoints', self.rarePuppers());
+            } else {
+                self.outcome('You lost! 👎');
+                self.lostGames(self.lostGames() + 1);
+                localStorage.setItem('lostGames', '' + self.lostGames());
+            }
+            self.largestNumber(arr[0].prettyAbs);
+            self.gameStarted(false);
+            self.gameEnded(true);
+        };
+        self.reset = function () {
+            self.unknowns([]);
+            self.known([]);
+            self.revealedCount(0);
+            self.largestNumber(0);
+            self.gameStarted(false);
+            self.gameEnded(false);
+            self.outcome('');
+        };
+        self.upgrade = function () {
+            if (self.char() === "Pupper") {
+                self.rarePuppers(self.rarePuppers() - self.cost());
+                localStorage.setItem('pupperPoints', self.rarePuppers());
+                localStorage.setItem('char', "Doggo");
+                self.char("Doggo");
+                self.pupperNotHover();
+            } else if (self.char() === "Doggo") {
+                self.rarePuppers(self.rarePuppers() - self.cost());
+                localStorage.setItem('pupperPoints', self.rarePuppers());
+                localStorage.setItem('char', "Woofer");
+                self.char("Woofer");
+                self.pupperNotHover();
+            }
+        };
+        self.invest = ko.observable(0);
+        self.invested = ko.observable(+localStorage.getItem('investedPupperPoints'));
+        self.accumulatedReturn = ko.observable(+localStorage.getItem('collectibleReturn'));
+        self.maxInvest = function () {
+            self.invest(Math.max(+self.rarePuppers() - 1, 0));
+        };
+        self.doInvestment = function () {
+            self.rarePuppers(+self.rarePuppers() - self.invest());
+            localStorage.setItem('pupperPoints', self.rarePuppers());
+            self.invested(+self.invested());
+            self.invested(+self.invested() + +self.invest());
+            localStorage.setItem('investedPupperPoints', self.invested());
+            self.invest(0);
+        };
+        self.giveReturn = function (n) {
+            self.accumulatedReturn(+self.accumulatedReturn() + (Math.pow(1.00001, n) - 1) * (self.invested() + Math.min(self.rarePuppers(), 0)));
+            localStorage.setItem('lastReturn', '' + Date.now());
+            localStorage.setItem('collectibleReturn', self.accumulatedReturn());
+            document.getElementsByTagName('title')[0].innerHTML = 'Collect ' + displayNumber(self.accumulatedReturn(), true);
+        };
+        self.collectReturn = function () {
+            self.rarePuppers(self.rarePuppers() + Math.floor(self.accumulatedReturn()));
+            localStorage.setItem('pupperPoints', self.rarePuppers());
+            self.accumulatedReturn(self.accumulatedReturn() - Math.floor(self.accumulatedReturn()));
+            localStorage.setItem('collectibleReturn', self.accumulatedReturn());
+        }
+    }, vm = new VM();
+    ko.applyBindings(vm);
+    init = true;
+    vm.switchPage(localStorage.getItem('currentPage'));
+    if (localStorage.getItem('lastReturn') !== null) {
+        let a = Date.now() - +localStorage.getItem('lastReturn');
+        a = Math.floor(a / 1000);
+        let b = vm.accumulatedReturn();
+        vm.giveReturn(a);
+        b = vm.accumulatedReturn() - b;
+        $('#myModal').modal();
+        $('#backBonus').html(displayNumber(b));
+    }
+    window.setInterval(() => {
+        if (vm.currentPage() === 'bank') {
+            vm.giveReturn(1);
+        }
+    }, 1000);
+</script>
+</body>
+</html>
