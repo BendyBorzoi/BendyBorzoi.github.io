@@ -2,8 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Kryptorechner Kalkulator</title>
+    <link rel="icon" type="image/png" href="xd.png"/>
     <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
     <style>
         .table-spacer > td {
             padding-bottom: 30px;
@@ -11,96 +14,103 @@
     </style>
 </head>
 <body>
-<div id="app" style="margin: 15px">
-    <table>
-        <tbody>
-        <tr>
-            <td>Rechner</td>
-            <td><input v-model="rigs" type=number></td>
-        </tr>
-        <tr>
-            <td>Karten/Rechner</td>
-            <td><input v-model="cardsPerRig" type=number></td>
-        </tr>
-        <tr class="table-spacer">
-            <td>Gesamtzahl Karten</td>
-            <td>{{ totalCards }}</td>
-        </tr>
-        <tr>
-            <td>Kosten/Karte</td>
-            <td><input v-model="costPerCard" type=number></td>
-        </tr>
-        <tr>
-            <td>MHs/s/Karte</td>
-            <td><input v-model="mhs" type=number></td>
-        </tr>
-        <tr class="table-spacer">
-            <td>Watt/Karte</td>
-            <td><input v-model="watts" type=number></td>
-        </tr>
-        <tr>
-            <td>Watt/Rechner</td>
-            <td>{{ formatNumber(neededWattage) }} W</td>
-        </tr>
-        <tr class="table-spacer">
-            <td>Watt Gesamt</td>
-            <td>{{ formatNumber(totalWattage) }} W</td>
-        </tr>
-        <tr>
-            <td>Monatliche €/MH/s</td>
-            <td><input v-model="monthlyMHPrice" step="0.01" type=number></td>
-        </tr>
-        <tr class="table-spacer">
-            <td>Kosten/kWh</td>
-            <td><input v-model="kWHPrice" step="0.01" type=number></td>
-        </tr>
-        <tr>
-            <td>kWh/Jahr</td>
-            <td>{{ formatNumber(kwhPerYear) }} kWh</td>
-        </tr>
-        <tr class="table-spacer">
-            <td>kWh/Monat</td>
-            <td>{{ formatNumber(kwhPerMonth) }} kWh</td>
-        </tr>
-        <tr>
-            <td>Stromkosten/Jahr</td>
-            <td>{{ formatEuros(kwhCostPerYear) }}</td>
-        </tr>
-        <tr class="table-spacer">
-            <td>Stromkosten/Monat</td>
-            <td>{{ formatEuros(kwhCostPerMonth) }}</td>
-        </tr>
-        <tr>
-            <td>Umsatz/Jahr</td>
-            <td>{{ formatEuros(earningsPerYear) }}</td>
-        </tr>
-        <tr class="table-spacer">
-            <td>Umsatz/Monat</td>
-            <td>{{ formatEuros(earningsPerMonth) }}</td>
-        </tr>
-        <tr>
-            <td>Gewinn/Jahr</td>
-            <td>{{ formatEuros(profitPerYear) }}</td>
-        </tr>
-        <tr class="table-spacer">
-            <td>Gewinn/Monat</td>
-            <td>{{ formatEuros(profitPerMonth) }}</td>
-        </tr>
-        <tr>
-            <td>Auszahlungsintervall</td>
-            <td>{{ formatNumber(daysToPayout) }} Tage</td>
-        </tr>
-        <tr>
-            <td>Investment</td>
-            <td>{{ formatEuros(investment) }}</td>
-        </tr>
-        <tr>
-            <td>ROI</td>
-            <td>{{ formatNumber(roiMonths) }} Monate</td>
-        </tr>
-        </tbody>
-    </table>
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <div id="app" style="margin: 15px">
+                <table class="table table-striped table-borderless">
+                    <tbody>
+                    <tr>
+                        <td>Rechner</td>
+                        <td><input class="form-control" v-model="rigs" type=number></td>
+                    </tr>
+                    <tr>
+                        <td>Karten/Rechner</td>
+                        <td><input class="form-control" v-model="cardsPerRig" type=number></td>
+                    </tr>
+                    <tr class="table-spacer">
+                        <td>Gesamtzahl Karten</td>
+                        <td>{{ totalCards }}</td>
+                    </tr>
+                    <tr>
+                        <td>Kosten/Karte</td>
+                        <td><input class="form-control" v-model="costPerCard" type=number></td>
+                    </tr>
+                    <tr>
+                        <td>MHs/s/Karte</td>
+                        <td><input class="form-control" v-model="mhs" type=number></td>
+                    </tr>
+                    <tr class="table-spacer">
+                        <td>Watt/Karte</td>
+                        <td><input class="form-control" v-model="watts" type=number></td>
+                    </tr>
+                    <tr>
+                        <td>Watt/Rechner</td>
+                        <td>{{ formatNumber(neededWattage) }} W</td>
+                    </tr>
+                    <tr class="table-spacer">
+                        <td>Watt Gesamt</td>
+                        <td>{{ formatNumber(totalWattage) }} W</td>
+                    </tr>
+                    <tr>
+                        <td>Monatliche €/MH/s</td>
+                        <td><input class="form-control" v-model="monthlyMHPrice" step="0.01" type=number></td>
+                    </tr>
+                    <tr class="table-spacer">
+                        <td>Kosten/kWh</td>
+                        <td><input class="form-control" v-model="kWHPrice" step="0.01" type=number></td>
+                    </tr>
+                    <tr>
+                        <td>kWh/Jahr</td>
+                        <td>{{ formatNumber(kwhPerYear) }} kWh</td>
+                    </tr>
+                    <tr class="table-spacer">
+                        <td>kWh/Monat</td>
+                        <td>{{ formatNumber(kwhPerMonth) }} kWh</td>
+                    </tr>
+                    <tr>
+                        <td>Stromkosten/Jahr</td>
+                        <td>{{ formatEuros(kwhCostPerYear) }}</td>
+                    </tr>
+                    <tr class="table-spacer">
+                        <td>Stromkosten/Monat</td>
+                        <td>{{ formatEuros(kwhCostPerMonth) }}</td>
+                    </tr>
+                    <tr>
+                        <td>Umsatz/Jahr</td>
+                        <td>{{ formatEuros(earningsPerYear) }}</td>
+                    </tr>
+                    <tr class="table-spacer">
+                        <td>Umsatz/Monat</td>
+                        <td>{{ formatEuros(earningsPerMonth) }}</td>
+                    </tr>
+                    <tr>
+                        <td>Gewinn/Jahr</td>
+                        <td>{{ formatEuros(profitPerYear) }}</td>
+                    </tr>
+                    <tr class="table-spacer">
+                        <td>Gewinn/Monat</td>
+                        <td>{{ formatEuros(profitPerMonth) }}</td>
+                    </tr>
+                    <tr>
+                        <td>Auszahlungsintervall</td>
+                        <td>{{ formatNumber(daysToPayout) }} Tage</td>
+                    </tr>
+                    <tr>
+                        <td>Investment</td>
+                        <td>{{ formatEuros(investment) }}</td>
+                    </tr>
+                    <tr>
+                        <td>ROI</td>
+                        <td>{{ formatNumber(roiMonths) }} Monate</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
 <script>
     new Vue({
         el: "#app",
