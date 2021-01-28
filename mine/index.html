@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+    <style>
+        .table-spacer > td {
+            padding-bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+<div id="app" style="margin: 15px">
+    <table>
+        <tbody>
+        <tr>
+            <td>Rechner</td>
+            <td><input v-model="rigs" type=number></td>
+        </tr>
+        <tr>
+            <td>Karten/Rechner</td>
+            <td><input v-model="cardsPerRig" type=number></td>
+        </tr>
+        <tr class="table-spacer">
+            <td>Gesamtzahl Karten</td>
+            <td>{{ totalCards }}</td>
+        </tr>
+        <tr>
+            <td>Kosten/Karte</td>
+            <td><input v-model="costPerCard" type=number></td>
+        </tr>
+        <tr>
+            <td>MHs/s/Karte</td>
+            <td><input v-model="mhs" type=number></td>
+        </tr>
+        <tr class="table-spacer">
+            <td>Watt/Karte</td>
+            <td><input v-model="watts" type=number></td>
+        </tr>
+        <tr>
+            <td>Watt/Rechner</td>
+            <td>{{ formatNumber(neededWattage) }} W</td>
+        </tr>
+        <tr class="table-spacer">
+            <td>Watt Gesamt</td>
+            <td>{{ formatNumber(totalWattage) }} W</td>
+        </tr>
+        <tr>
+            <td>Monatliche €/MH/s</td>
+            <td><input v-model="monthlyMHPrice" step="0.01" type=number></td>
+        </tr>
+        <tr class="table-spacer">
+            <td>Kosten/kWh</td>
+            <td><input v-model="kWHPrice" step="0.01" type=number></td>
+        </tr>
+        <tr>
+            <td>kWh/Jahr</td>
+            <td>{{ formatNumber(kwhPerYear) }} kWh</td>
+        </tr>
+        <tr class="table-spacer">
+            <td>kWh/Monat</td>
+            <td>{{ formatNumber(kwhPerMonth) }} kWh</td>
+        </tr>
+        <tr>
+            <td>Stromkosten/Jahr</td>
+            <td>{{ formatEuros(kwhCostPerYear) }}</td>
+        </tr>
+        <tr class="table-spacer">
+            <td>Stromkosten/Monat</td>
+            <td>{{ formatEuros(kwhCostPerMonth) }}</td>
+        </tr>
+        <tr>
+            <td>Umsatz/Jahr</td>
+            <td>{{ formatEuros(earningsPerYear) }}</td>
+        </tr>
+        <tr class="table-spacer">
+            <td>Umsatz/Monat</td>
+            <td>{{ formatEuros(earningsPerMonth) }}</td>
+        </tr>
+        <tr>
+            <td>Gewinn/Jahr</td>
+            <td>{{ formatEuros(profitPerYear) }}</td>
+        </tr>
+        <tr class="table-spacer">
+            <td>Gewinn/monat</td>
+            <td>{{ formatEuros(profitPerMonth) }}</td>
+        </tr>
+        <tr>
+            <td>Auszahlungsintervall</td>
+            <td>{{ formatNumber(daysToPayout) }} Tage</td>
+        </tr>
+        <tr>
+            <td>Investment</td>
+            <td>{{ formatEuros(investment) }}</td>
+        </tr>
+        <tr>
+            <td>ROI</td>
+            <td>{{ formatNumber(roiMonths) }} Monate</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<script>
+    new Vue({
+        el: "#app",
+        data: {
+            rigs: 1,
+            cardsPerRig: 5,
+            costPerCard: 305,
+            mhs: 32,
+            watts: 84,
+            monthlyMHPrice: 1.77,
+            kWHPrice: 0.25
+        },
+        computed: {
+            totalCards: function(){
+                return this.cardsPerRig * this.rigs
+            },
+            neededWattage: function(){
+                return this.cardsPerRig * this.watts
+            },
+            totalWattage: function(){
+                return this.neededWattage * this.rigs
+            },
+            kwhPerYear: function() {
+                return this.watts * 0.001 * 24 * 365 * this.totalCards
+            },
+            kwhPerMonth: function() {
+                return this.kwhPerYear / 12
+            },
+            kwhCostPerYear: function(){
+                return this.kWHPrice * this.kwhPerYear
+            },
+            kwhCostPerMonth: function(){
+                return this.kwhCostPerYear / 12
+            },
+            earningsPerYear: function(){
+                return this.earningsPerMonth * 12
+            },
+            earningsPerMonth: function(){
+                return this.totalCards * this.mhs * this.monthlyMHPrice
+            },
+            profitPerMonth: function(){
+                return this.earningsPerMonth - this.kwhCostPerMonth
+            },
+            profitPerYear: function(){
+                return this.profitPerMonth * 12
+            },
+            daysToPayout: function(){
+                return Math.max(1, 55 * 365 / 12 / this.earningsPerMonth)
+            },
+            investment: function(){
+                return this.costPerCard * this.totalCards + 400 * this.rigs
+            },
+            roiMonths: function(){
+                return this.investment / this.profitPerMonth
+            },
+        },
+        methods: {
+            formatEuros(value) {
+                return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'EUR' }).format(value)
+            },
+            formatNumber(value) {
+                return new Intl.NumberFormat('en-US', {}).format(value)
+            },
+        }
+    })
+</script>
+</body>
+</html>
